@@ -7,7 +7,7 @@ import Axios from 'axios';
    const [login,setLogin]= useState("");
    const [mdp,setMdp]= useState("");
    const Ajout =()=>{
-    Axios.post('http://192.168.4.104:4000/create',{
+    Axios.post('http://192.168.4.102:4000/create',{
 nom: nom,
 prenom:prenom,
 login:login,

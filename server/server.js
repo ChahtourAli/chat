@@ -7,7 +7,7 @@ const cors =require("cors");
 const socket = require("socket.io")
 const io = socket(server,{
     cors :{
-        origin:'',
+        origin:'*',
     }
 })
 app.use(cors());
@@ -20,6 +20,20 @@ var db = mysql.createConnection({
     password: "data2020"
   });
   db.connect();
+
+
+  io.on('connection', (socket) => {
+    
+    console.log('new client connected '+socket.id);
+    
+
+    io.to(socket.id).emit('msg', 'salut '+socket.id) ; 
+
+    socket.on('disconnect',()=>{
+        console.log('user had left');
+    })
+
+  });
 
 app.post('/login' ,(req,res)=>{
 const username =req.body.username ;
@@ -37,27 +51,15 @@ db.query("SELECT * FROM Utilisateur WHERE login =? AND password =? " ,[username,
         if(result.length>0){
             message = "succes";
             console.log(message);
-           
+           res.send(message);
         }
         else{
             message ="Login ou mot de passe incorrecte .";
             console.log(message);
+            res.send(message);
         }
          }
-         io.on("connection",(socket)=>{
-      
-        
-        },
-         getApiAndEmit = socket => {
-            const response = message;
-         
-            socket.emit("chat_message", response);
-         })
-        
-        
-        
-        },
-          )})
+        })}),
 
 app.post('/create',(req,res)=>{
 const nom=req.body.nom;
@@ -75,13 +77,26 @@ console.log("ajout terminé")
 }
 })
 
-})
+}),
+app.put('/delet',(req,res)=>{
+    const prenom=req.body.prenom;
+  
+    
+    db.query("DELETE FROM Utilisateur WHERE prenom=?",prenom,
+    (err,result)=>{
+    if(err){
+        console.log (err)
+    }
+    else{
+    console.log("suppression effectuer")
+    }
+    })
+    
+    }),
 
 
 
 
-
-console.log ("hello")
 
 
 
