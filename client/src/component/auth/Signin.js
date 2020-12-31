@@ -6,6 +6,9 @@ import { Form,Button,Alert,Container,Row,Col,Card } from 'react-bootstrap';
 import {Redirect} from 'react-router-dom';
 import "react-toastify/dist/ReactToastify.css";
 import History  from  '../../history';
+import './signin.css'
+
+import img1 from './3350441.jpg';
 
 
 const ENDPOINT="http://192.168.4.102:4000";
@@ -76,56 +79,36 @@ const ENDPOINT="http://192.168.4.102:4000";
 
 
 
-        <Container>
+        <Container fluid="xl">
         
-        <Row>
-            <Col></Col>
-            <Col>
-
-
-
-            <Card className="text-center">
-                
-                <Card.Body>
-                    <Card.Title>Se connecter</Card.Title>
-                    <Form onSubmit={handleSubmit}>
+        
+        <Row className="mak">
+        <Col className="mak">
+                <h1 class="display-4">Se connecter<br></br><small class="text-muted">Bienvenue</small></h1>
+                <Form onSubmit={handleSubmit}>
                 <Form.Group controlId="formBasicEmail">
                     <Form.Label>Identifiant</Form.Label>
-                    <Form.Control type="Identifiant" placeholder="Identifiant"  onChange={(e)=>{setUsername(e.target.value)}} required />
-                    
+                    <Form.Control type="Identifiant" placeholder="Identifiant"  onChange={(e)=>{setUsername(e.target.value)}} required />                    
                 </Form.Group>
-
                 <Form.Group controlId="formBasicPassword">
                     <Form.Label>Mot de passe </Form.Label>
                     <Form.Control type="password" placeholder="Mot de passe"  onChange={(e)=>{setPassword(e.target.value)}}  required/>
                 </Form.Group>
-                <Button variant="primary" type="submit" onClick={Join}>
-                    Se connecter
-                </Button>
-            
-            </Form>
-                </Card.Body>
-                <Card.Footer className="text-muted">
-                    
                 <Alert show={show} variant="danger">
                     <Alert.Heading>{message}</Alert.Heading>
-
-            </Alert>
-                </Card.Footer>
-            </Card>
-
-            
-            
-            
-            </Col>
-            <Col></Col>
+                </Alert>
+                <Form.Group className="text-center">
+                <Button variant="primary" type="submit" onClick={Join} >
+                    Se connecter
+                </Button>
+                </Form.Group>
+                </Form>
+          
+        </Col>
+        <Col>
+            <img src={img1} width="100%"></img>
+        </Col>
         </Row>
-
-        
-        
-
-            
-
             
 
             </Container>

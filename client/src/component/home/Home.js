@@ -1,11 +1,14 @@
 import React from 'react';
-import Navbar from './Navbar';
+import Navbarr from './Navbar';
+import Sidebar from './Siderbar';
+
+
 
 const Home =()=>{
     return(
     <div>
-     <Navbar />
-<p>zeaea</p>
+     <Navbarr />
+     <Sidebar />
    </div>
     )}
 export default Home
