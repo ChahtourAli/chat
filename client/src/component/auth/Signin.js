@@ -84,7 +84,7 @@ const ENDPOINT="http://192.168.4.102:4000";
         
         <Row className="mak">
         <Col className="mak">
-                <h1 class="display-4">Se connecter<br></br><small class="text-muted">Bienvenue</small></h1>
+                <h1 className="display-4">Se connecter<br></br><small className="text-muted">Bienvenue</small></h1>
                 <Form onSubmit={handleSubmit}>
                 <Form.Group controlId="formBasicEmail">
                     <Form.Label>Identifiant</Form.Label>

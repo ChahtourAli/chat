@@ -94,6 +94,35 @@ app.put('/delet',(req,res)=>{
     
     }),
 
+app.get('/afficher',(req,res)=>{
+
+    db.query("SELECT nom,prenom,id FROM Utilisateur",(err,result)=>{
+    
+if(err){
+    console.log(err);
+}else{
+    res.send(result);
+    console.log (result)
+}
+
+    })
+})
+app.get('/home',(req,res)=>{
+    
+   id=req.query.props;
+    
+    db.query("SELECT * FROM Utilisateur WHERE id=?",id,(err,result)=>{
+           if(err){
+               console.log (err);
+           }
+           else{
+              res.send(result);
+              console.log(result);
+
+           }
+
+})})
+
 
 
 

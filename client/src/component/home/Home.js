@@ -4,11 +4,13 @@ import Sidebar from './Siderbar';
 
 
 
+
 const Home =()=>{
     return(
     <div>
-     <Navbarr />
+     <Navbarr />     
      <Sidebar />
    </div>
     )}
 export default Home
+
