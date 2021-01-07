@@ -20,18 +20,22 @@ var db = mysql.createConnection({
     password: "data2020"
   });
   db.connect();
-
-
-  io.on('connection', (socket) => {
-    
+  
+  io.on('connection', function (socket)  {
+      socket.on('chat',function(data){
+        io.emit('chat',data);
+         console.log(data.message);
+      
     console.log('new client connected '+socket.id);
     
+     })
+    
 
-    io.to(socket.id).emit('msg', 'salut '+socket.id) ; 
+   /* io.to(socket.id).emit('msg', 'salut '+socket.id) ; 
 
     socket.on('disconnect',()=>{
         console.log('user had left');
-    })
+    })*/
 
   });
 

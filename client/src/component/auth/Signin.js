@@ -21,13 +21,13 @@ const ENDPOINT="http://192.168.4.102:4000";
      const    [username,setUsername]=useState("");
      const    [password,setPassword]=useState("");
      const    [show, setShow] = useState(false);
-    useEffect(() => {
+    /*useEffect(() => {
        const  socket= socketClient(ENDPOINT);
         console.log(socket);
         socket.on('msg',(msg)=>{
        console.log(msg);
         })
-    }, [])
+    }, [])*/
    
      const errorToast =()=>{
         toast("wrong username or password ",{
