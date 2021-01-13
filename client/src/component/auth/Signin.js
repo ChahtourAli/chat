@@ -3,11 +3,9 @@ import Axios from 'axios';
 import socketClient from 'socket.io-client';
 import {ToastContainer ,toast , Zoom} from 'react-toastify'
 import { Form,Button,Alert,Container,Row,Col,Card } from 'react-bootstrap';
-import {Redirect} from 'react-router-dom';
 import "react-toastify/dist/ReactToastify.css";
 import History  from  '../../history';
 import './signin.css'
-
 import img1 from './3350441.jpg';
 
 
@@ -21,6 +19,7 @@ const ENDPOINT="http://192.168.4.102:4000";
      const    [username,setUsername]=useState("");
      const    [password,setPassword]=useState("");
      const    [show, setShow] = useState(false);
+     const    [personne, setPersonne] =useState([]);
     /*useEffect(() => {
        const  socket= socketClient(ENDPOINT);
         console.log(socket);
@@ -35,44 +34,37 @@ const ENDPOINT="http://192.168.4.102:4000";
             draggable: true,
             position : toast.POSITION.BUTTON_CENTER
         });
+        };
 
-
-        
-
-     };
      const changeUrl =()=>{
          History.push("/home"); 
-         //<Redirect to={{pathname:'/home'}} />
+       
      }
      
 
-     
      const Join =()=>{
      Axios.post('http://192.168.4.102:4000/login',{
     username: username,
     password:password,
  
-     }).then (res=>{
-
-
-
-      if (res.data ==="succes")
+     }).then (result=>{
+     
+      if (result.data == "Login ou mot de passe incorrecte ." )
       {
-          console.log  (res.data);
-          changeUrl();
-          //setIsValid(true);
-          
+        setMessage(result.data);
+        setShow(true); 
       }
       else {
-          //res.("username or password wrong");
-          //setIsValid(true);
-          setMessage(res.data);
-          setShow(true); 
+          
+          console.log(result.data);
+          /* let obj={nom:result.data[0].nom,prenom:result.data[0].prenom,id:result.data[0].id};
+           sessionStorage.setItem('myData',JSON.stringify(obj));*/
+           changeUrl();  
              }
     })};
      const handleSubmit =(e)=>{
         e.preventDefault();
-        console.log(username,password);
+    
         setPassword(e.target.reset());
  }
     return ( 

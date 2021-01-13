@@ -7,14 +7,27 @@ import React from 'react';
 import {Switch,Route} from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+
+
+
 function App() {
+
+  /*function verifySession(obj) {
+   sessionStorage.verifySession(obj);
+    if(sessionStorage.verifySession){
+     
+    }
+    else{
+        History.push("/login");
+    }
+  }*/
   return (
     <div className="Container">
     <Switch>
     <Route path="/home" component={Home} />
-     <Route exact path="/" component={Signin} />
-     <Route path="/signup" component={Signup} />
-     <Route path="/delete" component={DeleteUser} />
+     <Route exact path="/" verifySession component={Signin} />
+     <Route path="/signup" verifySession component={Signup} />
+     <Route path="/delete" verifySession component={DeleteUser} />
      <Route path="/update" component={UpdateUser} />
     </Switch>
     </div>
