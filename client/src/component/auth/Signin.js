@@ -7,7 +7,6 @@ import "react-toastify/dist/ReactToastify.css";
 import History  from  '../../history';
 import './signin.css'
 import img1 from './3350441.jpg';
-import { connect } from "react-redux";
 
 
 const ENDPOINT="http://192.168.4.102:4000";
@@ -115,7 +114,5 @@ const ENDPOINT="http://192.168.4.102:4000";
             </Container>
     )
 }
-const mapStateToProps =(state)=>{
-    return {user:state.auth.user}
-}
-export default connect(mapStateToProps)(Signin);
+
+export default Signin;
