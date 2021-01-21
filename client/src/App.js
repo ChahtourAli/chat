@@ -10,7 +10,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 
-function App() {
+
+function App() { 
 
   /*function verifySession(obj) {
    sessionStorage.verifySession(obj);
@@ -24,7 +25,7 @@ function App() {
   return (
     <div className="Container">
     <Switch>
-    <Route path="/home" component={Home} />
+    <Route path="/home" component={Home}/>
      <Route exact path="/" verifySession component={Signin} />
      <Route path="/signup" verifySession component={Signup} />
      <Route path="/delete" verifySession component={DeleteUser} />

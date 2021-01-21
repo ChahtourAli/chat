@@ -23,40 +23,73 @@ var db = mysql.createConnection({
     password: "data2020"
   });
   db.connect();
-  
+
+  socketsclient = [];
+  idsocket=0 ;
   io.on('connection', function (socket){
-      socket.on('chat',function(data){
-        socket.broadcast.emit('message-send',data);
-         console.log(data.message);
+
+    socket.name = 'cl'+idsocket ;
+    socketsclient.push(socket) ;
+
+
+        socket.on('chat',function(data){
+ const expe= data.id_expe;
+ const dest= data.id_dest;
+ const message= data.message;
+
+
+            db.query("INSERT INTO Message (expe,dest,message) VALUES (?,?,?)",[expe,dest,message],(err,result)=>{
+                if (err){
+                    console.log ("error");
+                }
+                else {
+                    console.log("message envoyé");
+                }
+            })
+            socket.broadcast.emit('message-send',data);
+            
       
-    console.log('new client connected '+socket.id);
-})
+    
+        })
+
+
+//console.log('new client connected '+socket.name);
+
+
+//broadcast('data','cl3')
+
+
+
+    idsocket++ ;
+
+
    /* io.to(socket.id).emit('msg', 'salut '+socket.id) ; 
 
     socket.on('disconnect',()=>{
         console.log('user had left');
     })*/
+});
 
-  });
-  const maxAge= 3 * 24 * 60 * 60;
+
+    const maxAge= 3 * 24 * 60 * 60;
    const createToken=(id)=>{
        return (jwt.sign({id},'hello',{
            expiresIn: maxAge ,
        })
        );}
 
-  /*app.get('/set',(req,res)=>{
-      res.cookie('newUser',true);
-      res.send('hi');
-  })
-  app.get('/read-cookie',(req,res)=>{
-      const cookies =req.cookies;
-      console.log(cookies);
-      res.json(cookies);
-  })*/
-  const verifyToken=(id)=>{
-      
-  }
+ 
+ /* const verifyToken=(req,res,next)=>{
+      const token=req.headers;
+      if (!token)
+      {
+          res.send(' yo u need a token , please try to connect ');
+      }
+      else 
+      {
+        jwt.verify(token, "")
+      }
+  }*/
 
 app.post('/login' ,(req,res)=>{
 const username =req.body.username;
@@ -73,9 +106,15 @@ db.query("SELECT * FROM Utilisateur WHERE login =? AND password =?" ,[username, 
            const token= createToken(result[0].id);
            res.cookie('jwt',token,{maxAge:maxAge * 1000}); 
            console.log(token);
-           res.send(result);
+           res.send({result,token});
            console.log(result);
            db.query ("UPDATE Utilisateur SET etat=1 WHERE login=?",username);
+
+           io.sockets.emit('connected',{
+
+            id:result[0].id,
+            etat:1
+           })
         
            }
         else{
@@ -84,7 +123,29 @@ db.query("SELECT * FROM Utilisateur WHERE login =? AND password =?" ,[username, 
             res.send(message);
         }
          }
-        })}),
+        })
+    
+    }),
+   
+app.get('/message',(req,res)=>{
+    const expe =req.body.id_expe;
+    const dest =req.body.id_dest;
+
+
+    db.query("SELECT message,date FROM Message WHERE expe=? AND dest=?",[expe,dest],(err,result)=>{
+   // db.query("SELECT message,date FROM Message ",(err,result)=>{
+        if (err)
+        {console.log(err)}
+        else {
+            res.send(result);
+            //console.log(result);
+            
+        }
+
+    })
+    })
+
+
 app.post('/create',(req,res)=>{
 const nom=req.body.nom;
 const prenom=req.body.prenom;
@@ -117,6 +178,36 @@ app.put('/delet',(req,res)=>{
     })
     
     }),
+app.get ('/deconnexion',(req,res)=>{
+    id=req.body.id;
+    db.query("UPDATE Utilisateur SET etat=0 WHERE id=?",id,
+    (err,result)=>{
+        if (err){
+            console.log ("utilisateur deja déco" );
+        }else{
+io.sockets.emit('disconnected',{
+
+    id:result[0].id,
+    etat:0
+   }) 
+        }
+        }
+    
+)})
+
+    app.get('/connecter',(req,res)=>{
+        db.query("SELECT id FROM Utilisateur WHERE etat=1",(err,result)=>{
+            if(err)
+            {
+                console.log(err);
+            }
+            else{
+                res.send(result);
+                console.log(result);
+            }
+        })
+
+    })
 
 app.get('/afficher',(req,res)=>{
 
@@ -147,9 +238,27 @@ app.get('/home',(req,res)=>{
            else{
               res.send(result);
              console.log(result);
-            io.on('connection', function (socket){
-                socket.emit ("new user",result);
-             })
+            
            }
-})})
+})
+
+})
+
+  
+  
+  
+
+
+function broadcast(data,to) {
+    sockets.forEach(socket => {
+      
+        if(socket.name == to){
+        console.log(socket.name) ;
+
+        }
+
+
+    });
+  }
+
 server.listen(4000,()=>{console.log("server started")})

@@ -7,12 +7,13 @@ import "react-toastify/dist/ReactToastify.css";
 import History  from  '../../history';
 import './signin.css'
 import img1 from './3350441.jpg';
+import { connect } from "react-redux";
 
 
 const ENDPOINT="http://192.168.4.102:4000";
 
     
-    const Signin =()=> {
+    const Signin =(user)=> {
         
         
      const    [message, setMessage]=useState("");
@@ -20,6 +21,10 @@ const ENDPOINT="http://192.168.4.102:4000";
      const    [password,setPassword]=useState("");
      const    [show, setShow] = useState(false);
      const    [personne, setPersonne] =useState([]);
+     
+
+     //setPersonne(user);
+     
     /*useEffect(() => {
        const  socket= socketClient(ENDPOINT);
         console.log(socket);
@@ -27,7 +32,7 @@ const ENDPOINT="http://192.168.4.102:4000";
        console.log(msg);
         })
     }, [])*/
-   
+    
      const errorToast =()=>{
         toast("wrong username or password ",{
             className:"custom-toast",
@@ -38,7 +43,6 @@ const ENDPOINT="http://192.168.4.102:4000";
 
      const changeUrl =()=>{
          History.push("/home"); 
-       
      }
      
 
@@ -55,21 +59,25 @@ const ENDPOINT="http://192.168.4.102:4000";
         setShow(true); 
       }
       else {
+          //console.log(result.data.result[0]);
+          localStorage.setItem('token',result.data.token);
+          user=result.data.result[0];
+          var salah ={id: user.id, nom: user.nom, prenom:user.prenom };
+          localStorage.setItem('user',JSON.stringify(salah));
+          setPersonne(result.data);
           
-          console.log(result.data);
           /* let obj={nom:result.data[0].nom,prenom:result.data[0].prenom,id:result.data[0].id};
            sessionStorage.setItem('myData',JSON.stringify(obj));*/
            changeUrl();  
              }
-    })};
+    }
+    )};
      const handleSubmit =(e)=>{
         e.preventDefault();
     
         setPassword(e.target.reset());
  }
     return ( 
-
-
 
         <Container fluid="xl">
         
@@ -84,6 +92,7 @@ const ENDPOINT="http://192.168.4.102:4000";
                 </Form.Group>
                 <Form.Group controlId="formBasicPassword">
                     <Form.Label>Mot de passe </Form.Label>
+                
                     <Form.Control type="password" placeholder="Mot de passe"  onChange={(e)=>{setPassword(e.target.value)}}  required/>
                 </Form.Group>
                 <Alert show={show} variant="danger">
@@ -106,4 +115,7 @@ const ENDPOINT="http://192.168.4.102:4000";
             </Container>
     )
 }
-export default Signin
+const mapStateToProps =(state)=>{
+    return {user:state.auth.user}
+}
+export default connect(mapStateToProps)(Signin);
