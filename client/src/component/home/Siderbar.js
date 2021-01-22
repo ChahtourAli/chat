@@ -2,8 +2,13 @@ import React,{useState,useEffect} from 'react';
 import Axios from 'axios';
 import './sidebar.css';
 import Socket from 'socket.io-client';
+import { Form,Button,Alert,Container,Row,Col,Card } from 'react-bootstrap';
+
 
 const ENDPOINT="http://192.168.4.102:4000";
+
+const  socket= Socket(ENDPOINT);
+
 
 const Sidebar=()=> {
     const [user,setUser]=useState([]) ;
@@ -12,28 +17,32 @@ const Sidebar=()=> {
     const [msg,setMsg]=useState("");
     const [msgH,setMsgH]=useState([])
     
-    
-  /*  useEffect(()=>{
-        Axios.get('http://192.168.4.102:4000/connecter').then((response)=>{
-          setConnected(response.data);
-          alert(connected);
-        });
-    },[]);
-    */
+      
+  
    
     useEffect(()=>{
-        Axios.get('http://192.168.4.102:4000/afficher').then ((response)=>{            
+        Axios.get('http://192.168.4.102:4000/afficher',{
+            params:{
+                id:nom.id,
+            }
+
+        }).then ((response)=>{            
             setUser(response.data) ;
             
         });
         
     },[]);
     const nom=JSON.parse(localStorage.getItem('user'));
-    const destinataire=localStorage.getItem('dest');
+    const desti=localStorage.getItem('desti');
+useEffect(()=>{
+socket.emit('user_connected', nom.id
+)
 
+},[])
+    
     
     useEffect(()=>{
-        const  socket= Socket(ENDPOINT);   
+         
         socket.on('connected',function(data){
           console.log(data.id+' '+data.etat);
             var iduser = data.id ;
@@ -58,7 +67,7 @@ const Sidebar=()=> {
     });
     },[]);
     useEffect(()=>{
-        const  socket= Socket(ENDPOINT);   
+          
         socket.on('disconnected',function(data){
           console.log(data.id+' '+data.etat);
             var iduser = data.id ;
@@ -87,53 +96,54 @@ const Sidebar=()=> {
     
 
     useEffect(()=>{
-    const  socket= Socket(ENDPOINT);   
+      
     socket.on('message-send',function(data){
-        //console.log(data.message);
-        setMessage(prev=>[...prev,data.message]);
+        
+        
+         setMessage(prev=>[...prev,data.message]);
+
         
     });
 },[]);
-/*useEffect(()=>{
-    const  socket= Socket(ENDPOINT);   
-    socket.on('welcome',function(result){
-     //  setNouveau(result);
-    });
-},[]);
 
-*/
 
 
       function Contact  (props) { 
-          Axios.get('http://192.168.4.102:4000/home',{ 
+          Axios.get('http://192.168.4.102:4000/message',{ 
            params:{ props:props,
+            id:nom.id,
           }}).then((response)=>{
-              setAgent(response.data);
-              var khra=response.data[0];
-              var khariya=khra.id;
-              localStorage.setItem('dest',khariya);
+            
+             setAgent([response.data.result[0]]);
+             var desti=response.data.result[0].id;
+             localStorage.setItem('desti',desti);
+            
+               document.querySelectorAll('.li_new').forEach(function(ele) {
+                
+                    ele.remove();
+                    
+                });
+
+
              
-          });
+             setMsgH([]);
+
+            for (var i=0;i<response.data.result2.length;i++){
+
+                setMsgH(prev=>[...prev,response.data.result2[i].message]);
+             
+            } 
+        
+        });
+
         }
 
 
-        useEffect(()=>{
-            
-            Axios.get('http://192.168.4.102:4000/message',{
-                id_expe: nom,
-                id_dest: destinataire,    
-         }).then((response)=>{
-                for (var i=0;i<response.data.length;i++)
-                
-               setMsgH(prev=>[...prev,response.data[i].message]);
-            })
-         },[]);
+      
+        console.log(desti);
        
 const Envoyer =(e)=>{
     e.preventDefault();
-    
-    const  socket= Socket(ENDPOINT);
-   // console.log(msg);
     socket.emit('chat', {
         message:msg,
         id_dest: agent[0].id,
@@ -168,33 +178,49 @@ const Envoyer =(e)=>{
             <div className="content">
 
                 <div className="destinataire">
-                {agent.map((val,index)=>{
+                    <ul>
+                {agent.map((valeur,index)=>{
                     return (
                     <div key={index}>
-                        <h3>{val.nom} {val.prenom}</h3>
+                        <h3>{valeur.destinataire}</h3>
                         {msgH.map((val,index)=>{
-                            return(<div key={index}>
-                                  <ul>
-                                      <li>{val}</li>
-                                      </ul>  
-
-                            </div>)
+                            return(
+                                    <div key={index}>
+                                            
+                                        <li>{val}</li> 
+                                    </div>)
                         })}
-                        
-                        {message.map((val,index)=>{
-                            return (<div key={index} >
-
-                                <ul >
-                                    <li >{val}</li>
-                                </ul>
-    
-    
-                            </div>)
-                        })}
-                        <input type="text" placeholder="tapez un message" onChange={(e)=>{setMsg(e.target.value)}}/>
-                        <input type="submit" value="envoyer"  onClick={Envoyer}/>
                     </div>)
-                })  }
+                                            })
+                }
+            
+          
+                 
+                   {message.map((val,index)=>{
+                       return(
+                        <div key={index}>
+                                            
+                        <li className='li_new' >{val}</li> 
+                        </div>
+                              )        
+                           })}
+
+                 
+
+
+                        <Form.Group controlId="exampleForm.ControlTextarea1">
+                            <Form.Control as="textarea" placeholder="Tapez un message"  onChange={(e)=>{setMsg(e.target.value)}}  required rows={3} />
+                        </Form.Group>
+
+
+                        <Form.Group >
+                        <Button variant="primary" type="submit" onClick={Envoyer} >
+                            Envoyer
+                        </Button>
+                        </Form.Group>
+
+
+</ul>
                   
                 </div>
             </div>

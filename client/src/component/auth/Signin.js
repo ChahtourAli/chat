@@ -1,6 +1,6 @@
 import React,{useState, useEffect} from 'react';
 import Axios from 'axios';
-import socketClient from 'socket.io-client';
+
 import {ToastContainer ,toast , Zoom} from 'react-toastify'
 import { Form,Button,Alert,Container,Row,Col,Card } from 'react-bootstrap';
 import "react-toastify/dist/ReactToastify.css";
@@ -9,7 +9,7 @@ import './signin.css'
 import img1 from './3350441.jpg';
 
 
-const ENDPOINT="http://192.168.4.102:4000";
+
 
     
     const Signin =(user)=> {
@@ -22,15 +22,7 @@ const ENDPOINT="http://192.168.4.102:4000";
      const    [personne, setPersonne] =useState([]);
      
 
-     //setPersonne(user);
-     
-    /*useEffect(() => {
-       const  socket= socketClient(ENDPOINT);
-        console.log(socket);
-        socket.on('msg',(msg)=>{
-       console.log(msg);
-        })
-    }, [])*/
+    
     
      const errorToast =()=>{
         toast("wrong username or password ",{
@@ -65,8 +57,7 @@ const ENDPOINT="http://192.168.4.102:4000";
           localStorage.setItem('user',JSON.stringify(salah));
           setPersonne(result.data);
           
-          /* let obj={nom:result.data[0].nom,prenom:result.data[0].prenom,id:result.data[0].id};
-           sessionStorage.setItem('myData',JSON.stringify(obj));*/
+          
            changeUrl();  
              }
     }

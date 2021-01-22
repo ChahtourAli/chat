@@ -28,8 +28,23 @@ var db = mysql.createConnection({
   idsocket=0 ;
   io.on('connection', function (socket){
 
-    socket.name = 'cl'+idsocket ;
+    
+
+socket.on('user_connected',function (data){
+
+    socket.usr = data ;
+
+
     socketsclient.push(socket) ;
+
+
+    
+
+
+})
+
+
+
 
 
         socket.on('chat',function(data){
@@ -37,37 +52,35 @@ var db = mysql.createConnection({
  const dest= data.id_dest;
  const message= data.message;
 
+            console.log(expe+' '+dest+' '+message) ;
 
             db.query("INSERT INTO Message (expe,dest,message) VALUES (?,?,?)",[expe,dest,message],(err,result)=>{
                 if (err){
                     console.log ("error");
                 }
                 else {
-                    console.log("message envoyé");
+                    
+
+                    envoyer(data,dest) ;
+
+                   envoyer(data,expe) ;
+
                 }
             })
-            socket.broadcast.emit('message-send',data);
-            
+         
       
     
         })
 
 
-//console.log('new client connected '+socket.name);
 
-
-//broadcast('data','cl3')
 
 
 
     idsocket++ ;
 
 
-   /* io.to(socket.id).emit('msg', 'salut '+socket.id) ; 
-
-    socket.on('disconnect',()=>{
-        console.log('user had left');
-    })*/
+   
 });
 
 
@@ -79,17 +92,7 @@ var db = mysql.createConnection({
        );}
 
  
- /* const verifyToken=(req,res,next)=>{
-      const token=req.headers;
-      if (!token)
-      {
-          res.send(' yo u need a token , please try to connect ');
-      }
-      else 
-      {
-        jwt.verify(token, "")
-      }
-  }*/
+
 
 app.post('/login' ,(req,res)=>{
 const username =req.body.username;
@@ -128,21 +131,40 @@ db.query("SELECT * FROM Utilisateur WHERE login =? AND password =?" ,[username, 
     }),
    
 app.get('/message',(req,res)=>{
-    const expe =req.body.id_expe;
-    const dest =req.body.id_dest;
+    const expe =req.query.id;
+    const dest =req.query.props;
 
 
-    db.query("SELECT message,date FROM Message WHERE expe=? AND dest=?",[expe,dest],(err,result)=>{
-   // db.query("SELECT message,date FROM Message ",(err,result)=>{
+    //db.query("SELECT message,date , (SELECT concat(nom,' ',prenom) FROM Utilisateur where id='"+dest+"') as destinataire FROM Message WHERE expe=? AND dest=?",[expe,dest],(err,result)=>{
+   
+        db.query("SELECT concat(nom,' ',prenom) as destinataire , id FROM Utilisateur where id='"+dest+"' ",[expe,dest],(err,result)=>{
         if (err)
         {console.log(err)}
         else {
-            res.send(result);
-            //console.log(result);
+
+
+        db.query("SELECT message,date FROM Message WHERE ( expe=? AND dest=? ) OR (dest=? AND expe=?) ",[expe,dest,expe,dest],
+         (err,result2)=>{
+             if (err){
+                 return(err);
+                }   else{
+
+
+
+                        res.send({result,result2});
+                        console.log({result,result2});
+                 }
+             
+         })
+
+
             
         }
 
     })
+
+
+    
     })
 
 
@@ -210,18 +232,17 @@ io.sockets.emit('disconnected',{
     })
 
 app.get('/afficher',(req,res)=>{
-
-    db.query("SELECT nom,prenom,id,etat FROM Utilisateur",(err,result)=>{
+const id=req.query.id;
+    db.query("SELECT nom,prenom,id,etat FROM Utilisateur WHERE id!=?",id,(err,result)=>{
     
 if(err){
     console.log(err);
 }else{
     res.send(result);
-    console.log (result)
-    io.on('connection', function (socket){
+   /* io.on('connection', function (socket){
         socket.emit ("welcome",{
             result:result,});
-     })
+     })*/
    
 }
 
@@ -249,11 +270,15 @@ app.get('/home',(req,res)=>{
   
 
 
-function broadcast(data,to) {
-    sockets.forEach(socket => {
+function envoyer(data,to) {
+    socketsclient.forEach(socket => {
       
-        if(socket.name == to){
-        console.log(socket.name) ;
+        if(socket.usr == to){
+        console.log(socket.usr) ;
+
+        socket.emit('message-send',data) ;
+
+        console.log('message envoyé')
 
         }
 

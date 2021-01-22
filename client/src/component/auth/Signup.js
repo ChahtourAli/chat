@@ -1,5 +1,7 @@
 import React,{useState} from 'react'
 import Axios from 'axios';
+import { Form,Button,Alert,Container,Row,Col,Card } from 'react-bootstrap';
+
 
    const Signup =()=> {
    const [nom,setNom]= useState("");
@@ -20,10 +22,17 @@ mdp:mdp,
     return (
         <div>
             <h2>Ajouter un Utilisateur</h2>
+
+            <Form.Group controlId="formBasicEmail">
+                    <Form.Label>Nom</Form.Label>
+                    <Form.Control type="text" placeholder="Tapez le Nom"  onChange={(e)=>{setNom(e.target.value)}} required />                    
+            </Form.Group>
+
+
+
             <table align="center">
                 <tbody>
-           <tr><td> <label >Nom :</label></td>
-           <td> <input type="text" placeholder="tapez le Nom" onChange={(e)=>{setNom(e.target.value)}} /></td></tr>
+           
            <tr><td> <label >Prénom :</label></td>
            <td> <input type="text" placeholder="tapez le Prénom" onChange={(e)=>{setPrenom(e.target.value)}} /></td></tr>
            <tr><td> <label >Login :</label></td>
