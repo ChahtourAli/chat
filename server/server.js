@@ -16,6 +16,7 @@ app.use(cookieParser());
 app.use(cors());
 app.use(express.json());
 
+
 var db = mysql.createConnection({
     host: "localhost",
     database:"Chat",
@@ -37,15 +38,7 @@ socket.on('user_connected',function (data){
 
     socketsclient.push(socket) ;
 
-
-    
-
-
 })
-
-
-
-
 
         socket.on('chat',function(data){
  const expe= data.id_expe;
@@ -135,24 +128,32 @@ app.get('/message',(req,res)=>{
     const dest =req.query.props;
 
 
-    //db.query("SELECT message,date , (SELECT concat(nom,' ',prenom) FROM Utilisateur where id='"+dest+"') as destinataire FROM Message WHERE expe=? AND dest=?",[expe,dest],(err,result)=>{
-   
         db.query("SELECT concat(nom,' ',prenom) as destinataire , id FROM Utilisateur where id='"+dest+"' ",[expe,dest],(err,result)=>{
         if (err)
         {console.log(err)}
         else {
 
-
-        db.query("SELECT message,date FROM Message WHERE ( expe=? AND dest=? ) OR (dest=? AND expe=?) ",[expe,dest,expe,dest],
+        db.query("SELECT message,date,expe FROM Message WHERE ( expe=? AND dest=? ) OR (dest=? AND expe=?) ",[expe,dest,expe,dest],
          (err,result2)=>{
              if (err){
                  return(err);
-                }   else{
+                }   
+            else{
 
 
+                        if(result2.length>0){
+                        const    msg="1";
+                        res.send({result,result2,msg});
+                        console.log({result,result2,msg});
 
-                        res.send({result,result2});
-                        console.log({result,result2});
+                        }
+                        else{
+
+                         const   msg="0";
+                            res.send({result,msg,result2});
+                            console.log({result,result2,msg});
+
+                        }
                  }
              
          })
@@ -217,7 +218,7 @@ io.sockets.emit('disconnected',{
     
 )})
 
-    app.get('/connecter',(req,res)=>{
+app.get('/connecter',(req,res)=>{
         db.query("SELECT id FROM Utilisateur WHERE etat=1",(err,result)=>{
             if(err)
             {
@@ -266,9 +267,116 @@ app.get('/home',(req,res)=>{
 })
 
   
-  
-  
+/*app.get ('/groupe',(req,res)=>{
+    db.query ("SELECT * FROM Groupe"),(err,result)=>{
+        if (err){
+            return err;
+        }
+    else {
+        console.log (result);
+        res.send (result);
+        }
+    }
+}) */
+app.get ('/groupe',(req,res)=>{
+const id=req.query.id;
+db.query("SELECT * FROM affectation_groupe WHERE utilisateur=?",id,(err,result)=>{
+if(err)
+{ 
+    return(err);
+}
+else
+{
+    res.send (result);
+    db.query("SELECT nom_groupe FROM Groupe WHERE id=?",result.groupe,(err,result2)=>{
 
+        if (err)
+        {
+            return(err);
+
+        }
+        else {
+            return (result2);
+        }
+    })
+}
+
+})}) 
+  
+app.get('/derniermessage',(req,res)=>{
+
+    
+
+
+const id= req.query.id;
+
+
+db.query("SELECT expe,dest FROM Message WHERE expe='"+id+"' OR dest='"+id+"' ORDER BY date DESC limit 1",id,(err,result)=>{
+
+    if(err){
+        return(err);
+    }
+    else 
+    {
+        
+        if(result.length>0){
+
+
+        expe = result[0].expe ;
+        dest = result[0].dest  ;
+
+        if(id == result[0].dest ){
+            destinataire = result[0].expe ;
+        }
+        else{
+            destinataire = result[0].dest ;
+        }
+        
+
+
+        db.query("SELECT concat(nom,' ',prenom) as destinataire , id FROM Utilisateur where id='"+destinataire+"' ",[expe,dest],(err,result3)=>{
+            if (err)
+            {console.log(err)}
+            else {
+    
+    
+            db.query("SELECT message,date,expe FROM Message WHERE ( expe=? AND dest=? ) OR (dest=? AND expe=?) ",[expe,dest,expe,dest],
+             (err,result2)=>{
+                 if (err){
+                     return(err);
+                    }   else{
+
+    
+    
+                            res.send({result3,result2});
+                            //console.log({result3,result2});
+                     }
+                 
+             })
+    
+    
+                
+            }
+    
+        })
+        
+
+
+        //
+
+    }
+    else{
+
+        res.send('Vous n\'avez aucun message pour le moment .');
+
+
+    }
+
+
+
+    }
+})
+})
 
 function envoyer(data,to) {
     socketsclient.forEach(socket => {
