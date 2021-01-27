@@ -5,6 +5,7 @@ import Socket from 'socket.io-client';
 import { Form,Button,Alert,Container,Row,Col,Card } from 'react-bootstrap';
 import { faHome } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Moment from 'moment';
 
 const ENDPOINT="http://192.168.4.102:4000";
 
@@ -17,9 +18,11 @@ const Sidebar=()=> {
     const [message, setMessage]=useState([]);
     const [msg,setMsg]=useState("");
     const [msgH,setMsgH]=useState([]);
+   
     
-      
+   
     const nom=JSON.parse(localStorage.getItem('user'));
+    const desti=localStorage.getItem('desti');
    
     useEffect(()=>{
         Axios.get('http://192.168.4.102:4000/afficher',{
@@ -34,7 +37,7 @@ const Sidebar=()=> {
         
     
     
-    const desti=localStorage.getItem('desti');
+    
 
 socket.emit('user_connected', nom.id
 )
@@ -91,17 +94,10 @@ socket.emit('user_connected', nom.id
             }
       })
     });
-    
-
-    
-    
-
-    
-      
+        
     socket.on('message-send',function(data){
-        
-        
-         setMessage(prev=>[...prev,data.message]);
+    
+         setMessage(prev=>[...prev,data]);
 
         
     });
@@ -125,6 +121,8 @@ Axios.get("http://192.168.4.102:4000/derniermessage",{
         
 
     })
+
+
 },[]);
 
 
@@ -132,39 +130,35 @@ Axios.get("http://192.168.4.102:4000/derniermessage",{
 
       function Contact  (props) { 
           Axios.get('http://192.168.4.102:4000/message',{ 
-           params:{ props:props,
-            id:nom.id,
-          }}).then((response)=>{
-            
+           params:{ props:props,id:nom.id,}}).then((response)=>{
             if(typeof(response.data.result) !== 'undefined' ){
 
              setAgent([response.data.result[0]]);
-             var desti=response.data.result[0].id;
-             localStorage.setItem('desti',desti);
+            const l=response.data.result[0].id;
+            localStorage.setItem('desti',l);
             
-               document.querySelectorAll('.li_new').forEach(function(ele) {
-                
-                    ele.remove();
-                    
+                document.querySelectorAll('.li_new').forEach(function(ele) {                
+                    ele.remove();                    
                 });
 
-
-             
              setMsgH([]);
-             
+             if(response.data.result2.length>0){
             
-                
             for (var i=0;i<response.data.result2.length;i++){
-
+                
                 setMsgH(prev=>[...prev,response.data.result2[i]]);
+                
             }
-         
-            const exsist=response.data.msg;
-            } 
-      
+        }
+        else{
+            console.log(response.data.msgg);
+            setMsgH(["aucunmsg"]);
+        }
+              
+            }    
+        }
         
-
-        })}
+        )}
 
 
       
@@ -172,10 +166,12 @@ Axios.get("http://192.168.4.102:4000/derniermessage",{
        
 const Envoyer =(e)=>{
     e.preventDefault();
+   // e.target.reset();
     socket.emit('chat', {
         message:msg,
         id_dest: agent[0].id,
-        id_expe: nom.id
+        id_expe: nom.id,
+        date:Moment(new Date()).format( 'D-MM-yyyy HH:mm')
         });
        
 }
@@ -195,9 +191,10 @@ const Envoyer =(e)=>{
                 
               {user.map((val,index)=>{if (val.etat==1){
               
-                 return (<li className='users' data-us={val.id} key={index} id={val.id} onClick={()=>Contact(val.id)}><a> <figure className="avatar avatar-state-success"><span class="avatar-title bg-secondary rounded-circle">G</span></figure>   <span className={'usr'+val.id} ></span> 
+                 return (<li className='users' data-us={val.id} key={index} id={val.id} onClick={()=>Contact(val.id)}><a> <figure className="avatar avatar-state-success"><span className="avatar-title bg-secondary rounded-circle">G</span></figure>   <span className={'usr'+val.id} ></span> 
                                       <div className="users-list-body">
-                                          <div><h5 className="">{val.prenom} {val.nom}</h5>
+                                          <div><h5 className="">{val.prenom} {val.nom} </h5>
+                                          
                                       <p>Text...... </p>
                                       </div>
                                       <div className="users-list-action">
@@ -206,7 +203,7 @@ const Envoyer =(e)=>{
                                       </div>
                                       </a></li> );
               }else{
-                return (<li className='users' data-us={val.id} key={index} id={val.id} onClick={()=>Contact(val.id)}><a> <figure class="avatar avatar-state-secondary"><span class="avatar-title bg-secondary rounded-circle">G</span></figure> <span className={'usr'+val.id} ></span>  
+                return (<li className='users' data-us={val.id} key={index} id={val.id} onClick={()=>Contact(val.id)}><a> <figure className="avatar avatar-state-secondary"><span className="avatar-title bg-secondary rounded-circle">G</span></figure> <span className={'usr'+val.id} ></span>  
                                       <div className="users-list-body">
                                           <div><h5 className="">{val.prenom} {val.nom}</h5>
                                       <p>Text...... </p>
@@ -240,37 +237,45 @@ const Envoyer =(e)=>{
                     <div key={index} className="chat_body">
                         <div key={index} className="messages">
                         {msgH.map((val,index)=>{
-                            console.log(makrem);
-                        if (exsist=='0')
-                        {
-                            return(<div key={index} id="vide">aaaaaaaaaaaaa</div>)
-                        }
-                        else{
-                           if (val.expe===nom.id){
-                                return(
-                                            
-                                        <div key={index} className="exp">{val.message}</div> )
+                            if(msgH[0]=="aucunmsg"){
+                                return (<div>vous n'avez aucune discussion pour le moment</div>)
+                            }else{
+                                    if (val.expe===nom.id){
+                                            return(<div key={index} className="exp">{val.message} {val.date}</div> )
                                         }
                                         else{
-                                            return(
-                                            <div key={index} className="dest">{val.message}</div> )
-                                        }
+                                            return(<div key={index} className="dest">{val.message}{val.date}</div> ) 
+                                            
+                                    }
+
+
+
+
+                                }
+                       
+                                        
                                     
-                   }   })}
+                      })}
+                        {message.map((val,index)=>{
+                            if((desti==val.id_expe)||(desti==val.id_dest)){
+                                 return(<div key={index} className="exp li_new">{val.message}  <br/>{val.date}</div> 
+                                         )
+                                        }
+                                        else{
+                                           if((val.id_dest==nom.id) && (desti!==val.id_dest))
+                                           {
+                                           } 
+                                        }
+                                           
+                                              })}
+
                     </div></div></div>)
                 })}
                 
             
           
                  
-                    {message.map((val,index)=>{
-                       return(
                         
-                        
-                            <li className='li_new' key={index}>{val}</li> 
-                        
-                              )  
-                            })}      
                        
 
                

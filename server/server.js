@@ -44,10 +44,11 @@ socket.on('user_connected',function (data){
  const expe= data.id_expe;
  const dest= data.id_dest;
  const message= data.message;
+ const date= data.date;
 
-            console.log(expe+' '+dest+' '+message) ;
+            console.log(date) ;
 
-            db.query("INSERT INTO Message (expe,dest,message) VALUES (?,?,?)",[expe,dest,message],(err,result)=>{
+            db.query("INSERT INTO Message (expe,dest,message,date) VALUES (?,?,?,?) ",[expe,dest,message,date],(err,result)=>{
                 if (err){
                     console.log ("error");
                 }
@@ -75,6 +76,7 @@ socket.on('user_connected',function (data){
 
    
 });
+
 
 
     const maxAge= 3 * 24 * 60 * 60;
@@ -128,7 +130,7 @@ app.get('/message',(req,res)=>{
     const dest =req.query.props;
 
 
-        db.query("SELECT concat(nom,' ',prenom) as destinataire , id FROM Utilisateur where id='"+dest+"' ",[expe,dest],(err,result)=>{
+        db.query("SELECT concat(prenom,' ',nom) as destinataire , id FROM Utilisateur where id='"+dest+"' ",dest,(err,result)=>{
         if (err)
         {console.log(err)}
         else {
@@ -136,27 +138,22 @@ app.get('/message',(req,res)=>{
         db.query("SELECT message,date,expe FROM Message WHERE ( expe=? AND dest=? ) OR (dest=? AND expe=?) ",[expe,dest,expe,dest],
          (err,result2)=>{
              if (err){
-                 return(err);
+                console.log(err);
                 }   
             else{
-
-
-                        if(result2.length>0){
-                        const    msg="1";
-                        res.send({result,result2,msg});
-                        console.log({result,result2,msg});
-
-                        }
-                        else{
-
-                         const   msg="0";
-                            res.send({result,msg,result2});
-                            console.log({result,result2,msg});
-
-                        }
+                if(result2.length>0){
+             var    msgg='succes';
+                        res.send({result,result2,msgg});
+                        console.log({result,result2});
+                        
+                 }
+                 else {
+                     var msgg='echec';
+                     res.send({result,result2,msgg});
+                        console.log({result,result2});
                  }
              
-         })
+         }})
 
 
             
