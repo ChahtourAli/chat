@@ -39,6 +39,52 @@ socket.on('user_connected',function (data){
     socketsclient.push(socket) ;
 
 })
+socket.on('chat_groupe',function (data){
+const expe=data.id_expe;
+const groupe=data.groupe;
+const message=data.message;
+const date=data.date;
+console.log (data);
+
+
+db.query("INSERT INTO Message (expe,message,date,groupe) VALUES (?,?,?,?) ",[expe,message,date,groupe],(err,result)=>{
+    if (err){
+        console.log ("error");
+    }
+    else {
+        
+
+    console.log("succes");
+
+
+    db.query("SELECT * FROM affectation_groupe  WHERE groupe=? ",groupe,(err,result1)=>{
+       
+        if(err)
+        {
+            console.log(err);
+        }
+        else{
+        
+            for(i=0;i<result1.length;i++){
+
+
+                    envoyer(1,data,result1[i].utilisateur) ;
+
+
+            }
+            
+        
+        }
+
+        
+
+    })
+
+
+    }
+})
+
+})
 
         socket.on('chat',function(data){
  const expe= data.id_expe;
@@ -55,9 +101,9 @@ socket.on('user_connected',function (data){
                 else {
                     
 
-                    envoyer(data,dest) ;
+                    envoyer(0,data,dest) ;
 
-                   envoyer(data,expe) ;
+                    envoyer(0,data,expe) ;
 
                 }
             })
@@ -135,7 +181,7 @@ app.get('/message',(req,res)=>{
         {console.log(err)}
         else {
 
-        db.query("SELECT message,date,expe FROM Message WHERE ( expe=? AND dest=? ) OR (dest=? AND expe=?) ",[expe,dest,expe,dest],
+        db.query("SELECT message,date,expe FROM Message WHERE ( ( expe=? AND dest=? ) OR (dest=? AND expe=?) ) AND groupe IS NULL ",[expe,dest,expe,dest],
          (err,result2)=>{
              if (err){
                 console.log(err);
@@ -144,13 +190,13 @@ app.get('/message',(req,res)=>{
                 if(result2.length>0){
              var    msgg='succes';
                         res.send({result,result2,msgg});
-                        console.log({result,result2});
+                        //console.log({result,result2});
                         
                  }
                  else {
                      var msgg='echec';
                      res.send({result,result2,msgg});
-                        console.log({result,result2});
+                        //console.log({result,result2});
                  }
              
          }})
@@ -215,19 +261,7 @@ io.sockets.emit('disconnected',{
     
 )})
 
-app.get('/connecter',(req,res)=>{
-        db.query("SELECT id FROM Utilisateur WHERE etat=1",(err,result)=>{
-            if(err)
-            {
-                console.log(err);
-            }
-            else{
-                res.send(result);
-                console.log(result);
-            }
-        })
 
-    })
 
 app.get('/afficher',(req,res)=>{
 const id=req.query.id;
@@ -237,10 +271,6 @@ if(err){
     console.log(err);
 }else{
     res.send(result);
-   /* io.on('connection', function (socket){
-        socket.emit ("welcome",{
-            result:result,});
-     })*/
    
 }
 
@@ -264,51 +294,59 @@ app.get('/home',(req,res)=>{
 })
 
   
-/*app.get ('/groupe',(req,res)=>{
-    db.query ("SELECT * FROM Groupe"),(err,result)=>{
-        if (err){
-            return err;
-        }
-    else {
-        console.log (result);
-        res.send (result);
-        }
-    }
-}) */
+
 app.get ('/groupe',(req,res)=>{
-const id=req.query.id;
-db.query("SELECT * FROM affectation_groupe WHERE utilisateur=?",id,(err,result)=>{
+const id =req.query.id;
+
+    db.query("SELECT groupe , nom_groupe  FROM affectation_groupe INNER JOIN Groupe on (affectation_groupe.groupe = Groupe.id) WHERE utilisateur=? ",id,(err,result1)=>{
+       
 if(err)
-{ 
-    return(err);
-}
-else
 {
-    res.send (result);
-    db.query("SELECT nom_groupe FROM Groupe WHERE id=?",result.groupe,(err,result2)=>{
+    console.log(err);
+}
+else{
 
-        if (err)
-        {
-            return(err);
+    //console.log(result);
 
+    res.send(result1);
+
+}
+
+//res.send({table});
+
+
+    })
+
+})
+app.post('/new_groupe',(req,res)=>{
+    const nom_groupe =req.body.nom ;
+   // const id =req.body.id;
+    db.query("INSERT INTO Groupe (nom_groupe) VALUES (?) ",nom_groupe,(err,result)=>{
+        if (err){
+            console.log(err);
         }
-        else {
-            return (result2);
+        else{
+          db.query("SELECT * FROM Groupe WHERE nom_groupe=? ",nom_groupe,(err,result1)=>{
+            if(err)
+            {
+                console.log(err);
+
+            }
+            else{
+                db.query("INSERT INTO affectation_groupe (utilisateur,groupe) VALUES (?,?)",[nom_groupe,id],(err,result2)=>{
+                        res.send({result1,result2});
+                })
+            }
+          })
+            res.send(result);
         }
     })
-}
-
-})}) 
+})
   
 app.get('/derniermessage',(req,res)=>{
 
-    
-
-
 const id= req.query.id;
-
-
-db.query("SELECT expe,dest FROM Message WHERE expe='"+id+"' OR dest='"+id+"' ORDER BY date DESC limit 1",id,(err,result)=>{
+db.query("SELECT expe,dest,groupe FROM Message WHERE expe='"+id+"' OR dest='"+id+"' ORDER BY date DESC limit 1",id,(err,result)=>{
 
     if(err){
         return(err);
@@ -320,7 +358,8 @@ db.query("SELECT expe,dest FROM Message WHERE expe='"+id+"' OR dest='"+id+"' ORD
 
 
         expe = result[0].expe ;
-        dest = result[0].dest  ;
+        dest = result[0].dest ;
+        groupe=result[0].groupe;
 
         if(id == result[0].dest ){
             destinataire = result[0].expe ;
@@ -329,24 +368,53 @@ db.query("SELECT expe,dest FROM Message WHERE expe='"+id+"' OR dest='"+id+"' ORD
             destinataire = result[0].dest ;
         }
         
+    
+
+        if(dest==null && groupe!=null){
 
 
+            db.query("SELECT nom_groupe as destinataire , id FROM Groupe where id='"+groupe+"' ",(err,result3)=>{
+                if (err)
+                {
+                    console.log(err)
+                }
+                else {
+                
+
+                db.query("SELECT message,date,expe FROM Message INNER JOIN Groupe  ON ( Message.groupe = Groupe.id ) WHERE groupe='"+groupe+"' ",
+                 (err,result2)=>{
+                     if (err){
+                         return(err);
+                        }   else{
+    
+                                res.send({result3,result2,groupe});
+    
+                         }
+                     
+                 })
+        
+        
+                    
+                }
+        
+            })
+
+
+        }
+        else{
         db.query("SELECT concat(nom,' ',prenom) as destinataire , id FROM Utilisateur where id='"+destinataire+"' ",[expe,dest],(err,result3)=>{
             if (err)
             {console.log(err)}
             else {
     
-    
-            db.query("SELECT message,date,expe FROM Message WHERE ( expe=? AND dest=? ) OR (dest=? AND expe=?) ",[expe,dest,expe,dest],
+             db.query("SELECT message,date,expe FROM Message WHERE ( ( expe=? AND dest=? ) OR (dest=? AND expe=?) ) AND groupe IS NULL ",[expe,dest,expe,dest],
              (err,result2)=>{
                  if (err){
                      return(err);
                     }   else{
-
-    
-    
-                            res.send({result3,result2});
-                            //console.log({result3,result2});
+                            
+                            res.send({result3,result2,groupe});
+                            
                      }
                  
              })
@@ -356,10 +424,13 @@ db.query("SELECT expe,dest FROM Message WHERE expe='"+id+"' OR dest='"+id+"' ORD
             }
     
         })
+
+
+    }
         
 
 
-        //
+        
 
     }
     else{
@@ -374,14 +445,55 @@ db.query("SELECT expe,dest FROM Message WHERE expe='"+id+"' OR dest='"+id+"' ORD
     }
 })
 })
+app.get('/message_groupe',(req,res)=>{
+    const id_groupe =req.query.props;
+    
 
-function envoyer(data,to) {
+
+        db.query("SELECT  concat('Groupe de discussion : ',nom_groupe) as destinataire,id FROM Groupe where id='"+id_groupe+"' ",id_groupe,(err,result)=>{
+        if (err)
+        {console.log(err)}
+        else {
+
+        db.query("SELECT message,date,expe,groupe  FROM Message WHERE groupe =? ",id_groupe,
+         (err,result2)=>{
+             if (err){
+                console.log(err);
+                }   
+            else{
+                if(result2.length>0){
+             var    msgg='succes';
+                        res.send({result,result2,msgg});
+                        console.log({result,result2});
+                        
+                 }
+                 else {
+                     var msgg='echec';
+                     res.send({result,result2,msgg});
+                        console.log({result,result2});
+                 }
+             
+         }})
+
+
+            
+        }
+
+    })
+
+
+    
+    })
+
+function envoyer(multiple,data,to) {
     socketsclient.forEach(socket => {
       
         if(socket.usr == to){
         console.log(socket.usr) ;
-
+        
+      
         socket.emit('message-send',data) ;
+        
 
         console.log('message envoyé')
 
