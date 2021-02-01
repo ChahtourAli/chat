@@ -321,28 +321,23 @@ else{
 app.post('/new_groupe',(req,res)=>{
     const nom_groupe =req.body.nom ;
    // const id =req.body.id;
-    db.query("INSERT INTO Groupe (nom_groupe) VALUES (?) ",nom_groupe,(err,result)=>{
-        if (err){
-            console.log(err);
+   db.query("SELECT * FROM Groupe WHERE nom_groupe=? ",nom_groupe,(err,result)=>{
+       if(err)
+       {
+           console.log(err);
+       }
+       else{
+           if(result=null){
+           db.query("INSERT INTO Groupe (nom_groupe) VALUES (?) ",nom_groupe,(err,result1)=>{
+            console.log("validé ");
+           });
+        } else
+        {
+            res.send("nom du groupe déjà utilisé");
         }
-        else{
-          db.query("SELECT * FROM Groupe WHERE nom_groupe=? ",nom_groupe,(err,result1)=>{
-            if(err)
-            {
-                console.log(err);
 
-            }
-            else{
-                db.query("INSERT INTO affectation_groupe (utilisateur,groupe) VALUES (?,?)",[nom_groupe,id],(err,result2)=>{
-                        res.send({result1,result2});
-                })
-            }
-          })
-            res.send(result);
-        }
-    })
-})
-  
+      }})})
+
 app.get('/derniermessage',(req,res)=>{
 
 const id= req.query.id;

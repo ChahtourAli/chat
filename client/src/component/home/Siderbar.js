@@ -6,6 +6,15 @@ import { Form,Button,Alert,Container,Row,Col,Card } from 'react-bootstrap';
 import { faHome } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
+import Modal from "react-bootstrap/Modal";
+import ModalBody from "react-bootstrap/ModalBody";
+import ModalHeader from "react-bootstrap/ModalHeader";
+import ModalFooter from "react-bootstrap/ModalFooter";
+import ModalTitle from "react-bootstrap/ModalTitle";
+
+import "bootstrap/dist/css/bootstrap.min.css";
+
+
 import Moment from 'moment';
 
 const ENDPOINT="http://192.168.4.102:4000";
@@ -21,6 +30,7 @@ const Sidebar=()=> {
     const [msgH,setMsgH]=useState([]);
     const [groupe,setGroupe]=useState([]);
     const [newg, setNewg]=useState("");
+    const [help, setHelp]=useState("");
     
    
     const nom=JSON.parse(localStorage.getItem('user'));
@@ -132,13 +142,59 @@ Axios.get("http://192.168.4.102:4000/derniermessage",{
     })
     
 },[]);
+    
+    
+    function Example() {
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+      
+  return (
+    <>
+      <Button variant="primary" onClick={handleShow}>
+        Launch static backdrop modal
+      </Button>
+
+      <Modal
+        show={show}
+        onHide={handleClose}
+        backdrop="static"
+        keyboard={false}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Modal title</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form.Group as={Col} md="9" controlId="exampleForm.ControlTextarea1">                            
+                            <Form.Control as="textarea" placeholder="Nom de groupe" className="form-control"  onChange={(e)=>{setNewg(e.target.value)}}  required rows={1} style={{width:"100%" }}/>
+                        </Form.Group>
+                        <button onClick={AjouterGroupe}/>
+          escape key.
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="primary">Understood</Button>
+        </Modal.Footer>
+      </Modal>
+    </>
+  );
+}
+
+    
+    
+    
+    
 const AjouterGroupe=()=>{
     
 Axios.post("http://192.168.4.102:4000/new_groupe",{
 nom:newg,
 
 }).then((response)=>{
-    console.log(response);
+    
+    setHelp(response.data);
 })
 }
 
@@ -242,7 +298,7 @@ const Envoyer =(e)=>{
 
             <div className="sidebar-header">
                 <input type="text" className="form-control" placeholder="Recherche" />
-                <Button variant="light" style={{marginLeft:"10px"}}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></Button>
+                <Button variant="light" style={{marginLeft:"10px"}} onClick={Example}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></Button>
             </div>
 
             <ul className="list-unstyled components">
@@ -342,14 +398,6 @@ const Envoyer =(e)=>{
                     </div></div></div>)
                 })}
                 
-            
-          
-                 
-                        
-                       
-
-               
-
                         <div className="chat_footer">
                         
                         <Form>
@@ -364,10 +412,7 @@ const Envoyer =(e)=>{
                         <Form.Group as={Col} md="9" controlId="exampleForm.ControlTextarea1">                            
                             <Form.Control as="textarea" placeholder="Tapez un message..." className="form-control"  onChange={(e)=>{setMsg(e.target.value)}}  required rows={1} style={{width:"100%" }}/>
                         </Form.Group>                       
-                        <Form.Group as={Col} md="9" controlId="exampleForm.ControlTextarea1">                            
-                            <Form.Control as="textarea" placeholder="Nom de groupe" className="form-control"  onChange={(e)=>{setNewg(e.target.value)}}  required rows={1} style={{width:"100%" }}/>
-                        </Form.Group>
-                        <button onClick={AjouterGroupe}/>
+                        
                         <Form.Group as={Col} md="2">
                         <Button variant="light" >
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg></Button>
@@ -377,10 +422,14 @@ const Envoyer =(e)=>{
                         </Form.Group>
                         </Form.Row>
 
-                        
+                        {help}
                         </Form>
 
                         </div>
+                    
+                    
+                    
+                        
 
                   
                 </div>
