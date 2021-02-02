@@ -68,7 +68,7 @@ db.query("INSERT INTO Message (expe,message,date,groupe) VALUES (?,?,?,?) ",[exp
             for(i=0;i<result1.length;i++){
 
 
-                    envoyer(1,data,result1[i].utilisateur) ;
+                    envoyer(1,'message-send',data,result1[i].utilisateur) ;
 
 
             }
@@ -101,9 +101,9 @@ db.query("INSERT INTO Message (expe,message,date,groupe) VALUES (?,?,?,?) ",[exp
                 else {
                     
 
-                    envoyer(0,data,dest) ;
+                    envoyer(0,'message-send',data,dest) ;
 
-                    envoyer(0,data,expe) ;
+                    envoyer(0,'message-send',data,expe) ;
 
                 }
             })
@@ -159,17 +159,51 @@ db.query("SELECT * FROM Utilisateur WHERE login =? AND password =?" ,[username, 
             id:result[0].id,
             etat:1
            })
+
+
+           setInterval(function(){
+
+        
+            db.query("SELECT count(*) as nbr,expe FROM Message where dest='"+result[0].id+"' AND lu = 0 AND groupe IS NULL GROUP BY expe ",dest,(err,result_msg)=>{
+                if (err)
+                {console.log(err)}
+                else {
+    
+                    envoyer(0,'notif',result_msg,result[0].id) ;
+
+
+                }
+    
+            });
+    
+            
+    
+    
+    
+            },1000) ;
+
+
+
+
         
            }
-        else{
-            message ="Login ou mot de passe incorrecte .";
-            console.log(message);
-            res.send(message);
-        }
+            else{
+                message ="Login ou mot de passe incorrecte .";
+                console.log(message);
+                res.send(message);
+            }
          }
         })
+
+
+
+        
+
     
     }),
+
+
+    
    
 app.get('/message',(req,res)=>{
     const expe =req.query.id;
@@ -210,7 +244,23 @@ app.get('/message',(req,res)=>{
 
     
     })
+app.get('/modifiergroupe',(req,res)=>{
+    const id=req.query.id;
+    
+    
+    db.query("SELECT * FROM affectation_groupe INNER JOIN Groupe ON(affectation_groupe.groupe=Groupe.id) where Groupe.id='"+id+"'",id,(err,result)=>{
+        if (err)
+        {
+            console.log(err);
+        }
+        else
+        {
+            res.send(result);
 
+        }
+    })
+
+})
 
 app.post('/create',(req,res)=>{
 const nom=req.body.nom;
@@ -320,23 +370,67 @@ else{
 })
 app.post('/new_groupe',(req,res)=>{
     const nom_groupe =req.body.nom ;
-   // const id =req.body.id;
-   db.query("SELECT * FROM Groupe WHERE nom_groupe=? ",nom_groupe,(err,result)=>{
+    const affectation =req.body.affectation;
+    const id_connected = req.body.id_connected;
+
+    db.query("SELECT * FROM Groupe WHERE nom_groupe=? ",nom_groupe,(err,result)=>{
        if(err)
        {
            console.log(err);
        }
        else{
-           if(result=null){
-           db.query("INSERT INTO Groupe (nom_groupe) VALUES (?) ",nom_groupe,(err,result1)=>{
-            console.log("validé ");
-           });
-        } else
-        {
-            res.send("nom du groupe déjà utilisé");
-        }
+           if(result.length==0){
 
-      }})})
+                db.query("INSERT INTO Groupe (nom_groupe) VALUES (?) ",nom_groupe,(err,result1)=>{
+
+                    affectation.push(id_connected);
+
+                    console.log(affectation);
+                    
+
+                    affectation.forEach(function(usr){
+
+                        db.query("SELECT * FROM affectation_groupe where groupe = "+result1.insertId+" AND utilisateur = "+usr+" ",[result1.insertId , usr],(err,result_existance)=>{
+
+                            if(result_existance.length == 0 ){
+
+
+                            db.query("INSERT INTO affectation_groupe (groupe,utilisateur) VALUES (?,?) ",[result1.insertId , usr],(err,result1)=>{
+                                if(err)
+                                {
+                                    console.log(err);
+                                }
+                                else{
+
+                                    
+
+                                }
+                            
+                                
+                                
+                            });
+
+                            }
+
+                        });
+
+                    })
+
+                    
+
+
+                    
+                });
+                res.send("Action effectuée avec succès");
+                
+             }else
+            {
+            res.send("nom du groupe déjà utilisé");
+            }
+
+        }
+            })
+                                    })
 
 app.get('/derniermessage',(req,res)=>{
 
@@ -480,14 +574,96 @@ app.get('/message_groupe',(req,res)=>{
     
     })
 
-function envoyer(multiple,data,to) {
+app.post('/updategroupe',(req,res)=>{
+const id=req.body.id;
+const nom=req.body.nom;
+const affectation =req.body.affectation;
+const id_connected = req.body.id_connected;
+
+console.log(id);
+db.query("UPDATE  Groupe SET nom_groupe=? where id=?",[nom,id],(err,result)=>{
+        if (err)
+        {
+            console.log(err);
+        }
+        else
+        {
+            db.query("DELETE FROM affectation_groupe where groupe=?",id,(err,result1)=>{
+                if (err){
+                    console.log(err);
+                }
+                else{
+
+                    affectation.push(id_connected);
+
+                    console.log(affectation);
+                    
+
+                    affectation.forEach(function(usr){
+
+                        db.query("SELECT * FROM affectation_groupe where groupe = "+id+" AND utilisateur = "+usr+" ",[id , usr],(err,result_existance)=>{
+
+                            if(result_existance.length == 0 ){
+
+
+                            db.query("INSERT INTO affectation_groupe (groupe,utilisateur) VALUES (?,?) ",[id , usr],(err,result1)=>{
+                                if(err)
+                                {
+                                    console.log(err);
+                                }
+                                else{
+
+                                       
+
+                                }
+                            
+                                
+                                
+                            });
+
+                            }
+
+                        });
+
+                    })
+
+                res.send("groupe modifié");
+                }
+            })
+        }
+})
+})
+app.delete('/deletegroupe',(req,res)=>{
+    const id=req.body.id;
+    db.query("DELETE FROM affectation_groupe where groupe=?",id,(err,result)=>{
+        if (err){
+            console.log(err);
+        }
+        else{
+            db.query("DELETE FROM Groupe where id=?",id,(err,result1)=>{
+                if (err)
+                {
+                    console.log(err);
+                }
+                else{
+                    res.send("le groupe a été supprimé");
+                }
+            })
+        }
+    })
+
+})
+
+
+
+function envoyer(multiple,objet,data,to) {
     socketsclient.forEach(socket => {
       
         if(socket.usr == to){
         console.log(socket.usr) ;
         
       
-        socket.emit('message-send',data) ;
+        socket.emit(objet,data) ;
         
 
         console.log('message envoyé')

@@ -51,6 +51,7 @@
     background: #fff;
     display: inline-flex;
     border-bottom: 1px solid #ddd;
+    width: 100%;
 }
 
 #sidebar ul.components {
@@ -156,7 +157,7 @@ body{
     padding: 10px 20px;margin-bottom: 1rem; display: inline;   
 }
 .dest{
-    background-color: #0a80ff;
+    background-color: #407bff;
     color: #fff;
     margin-left: auto;
     border-radius: 7px;
@@ -238,6 +239,23 @@ body{
     flex-direction: column;
     flex: 1 1;
 }
-
-
+.message-avatar{display: flex;
+    align-items: center;
+    margin-bottom: 1rem;}
+.message-item2{margin-left: auto;}
+.message-avatar2 {justify-content: flex-end;align-items: center;
+    margin-bottom: 1rem;}
+.time {
+        color: #828282;
+    margin-top: 10px;
+    font-style: italic;
+    font-size: 11px;
+}
+.modal {z-index: 9999999 !important;}
+.modal-backdrop {z-index: 9999999 !important;}
+.btn-primary {
+    color: #fff;
+    background-color: #407bff !important;
+    border-color: #407bff !important;
+}
 
