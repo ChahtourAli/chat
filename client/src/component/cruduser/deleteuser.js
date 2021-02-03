@@ -1,27 +1,56 @@
-import React,{useState} from 'react'
-import './Delet.css';
-import Axios from 'axios';
- const DeleteUser=()=> {
-    const [user,setUser]=useState("");
+import React, { useEffect, useState } from "react";
+import "./Delet.css";
+import Axios from "axios";
+import Nav from '../home/Navbar'
+const DeleteUser = () => {
 
-const supprimer =()=>{
-Axios.put('http://192.168.4.102:4000/delet',{
-prenom: user,   
-}).then();
-}
+const nom=JSON.parse(localStorage.getItem('user'));
+const [userr, setUserr] = useState([]);
+  
+  useEffect(() => {
+      
+    Axios.get("http://192.168.4.102:4000/afficheruser", {
+      params: {
+        id: nom.id,
+      },
+    }).then((response) => {
+        
+      setUserr(response.data);
+      
+    });
+  }, [userr]);
 
-    return (
-        <div className="d-user">
-            <h2> Supprimer un utilisateur</h2>
-            <table align="center"><tbody>
-           <tr><td> <label>tapez le nom de l'utilisateur à supprimer :</label></td></tr>
-       <tr><td>     <input type="text" placeholder="Search for user" onChange={(e)=>{setUser(e.target.value)}}/></td></tr>
+
+  const supprimer = (props) => {
 
 
-       <tr><td>       
-       <button onClick={supprimer}>Supprimer</button>   </td></tr>
-        </tbody></table>
-        </div>
-    )
-}
-export default DeleteUser
+    Axios.put("http://192.168.4.102:4000/delet", {
+     params:{ id: props,}
+    }).then((response) => {
+        
+   
+    });
+ 
+};
+
+  return (
+
+    <div className="d-user">
+      <Nav />
+      <h2> Supprimer un utilisateur</h2>
+      <ul>
+        {userr.map((val,index) => {
+
+
+            
+          return (
+            <li key={index} >
+              {val.nom} {val.prenom} <button onClick={()=>supprimer(val.id)}> Supprimer</button>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+    }
+export default DeleteUser;

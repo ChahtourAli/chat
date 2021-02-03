@@ -86,6 +86,14 @@ db.query("INSERT INTO Message (expe,message,date,groupe) VALUES (?,?,?,?) ",[exp
 
 })
 
+
+socket.on('chat_global',function(data){
+
+    
+})
+
+
+
         socket.on('chat',function(data){
  const expe= data.id_expe;
  const dest= data.id_dest;
@@ -122,6 +130,19 @@ db.query("INSERT INTO Message (expe,message,date,groupe) VALUES (?,?,?,?) ",[exp
 
    
 });
+app.get("/afficheruser",(req,res)=>{
+    const id=req.query.id;
+    db.query("SELECT * FROM Utilisateur where id!='"+id+"'",(err,result)=>{
+        if(err)
+        {
+            console.log(err);
+        }
+        else
+        {
+            res.send(result);
+        }
+    })
+})
 
 
 
@@ -133,7 +154,80 @@ db.query("INSERT INTO Message (expe,message,date,groupe) VALUES (?,?,?,?) ",[exp
        );}
 
  
+app.put("/delet",(req,res)=>{
 
+const id=req.body.params.id;
+
+db.query("DELETE FROM Utilisateur where id='"+id+"'",(err,result)=>{
+if(err)
+{
+    console.log(err);
+}
+else{
+    
+    console.log("suppression effectué");
+    res.send('Suppression effectuée avec succès .');
+}
+
+})
+})
+app.get("/getallmessage",(req,res)=>{
+    db.query("SELECT t1.* , (SELECT concat(t2.nom,' ',t2.prenom) FROM Utilisateur as t2 where t1.expe = t2.id  ) as expediteur , (SELECT concat(t3.nom,' ',t3.prenom) FROM Utilisateur as t3 where t1.dest = t3.id  ) as destinataire  FROM Message as t1 WHERE t1.dest IS NOT NULL",(err,result)=>{
+        if(err){
+            console.log(err);
+        }
+        else{
+            res.send(result);
+        }
+    })
+})
+
+
+app.get("/message_global",(req,res)=>{
+    const id=req.query.id;
+
+    db.query("SELECT  'Discussion globale' as destinataire,id FROM Groupe ",(err,result)=>{
+        if (err)
+        {console.log(err)}
+        else {
+
+
+            res.send({result,result2});
+
+
+        }
+    })
+})
+
+
+
+app.get("/getallmessagegroupe",(req,res)=>{
+    db.query("SELECT t1.* , (SELECT concat(t2.nom,' ',t2.prenom) FROM Utilisateur as t2 where t1.expe = t2.id  ) as expediteur , (SELECT t3.nom_groupe FROM Groupe as t3 where t1.groupe = t3.id  ) as destinataire  FROM Message as t1 WHERE t1.groupe IS NOT NULL",(err,result)=>{
+        if(err){
+            console.log(err);
+        }
+        else{
+            res.send(result);
+        }
+    })
+})
+
+app.post ("/updateUserr",(req,res)=>{
+  
+    const id=req.body.params.id;
+    const nom=req.body.params.nom;
+    const prenom=req.body.params.prenom;
+    const mdp=req.body.params.mdp;
+   
+    db.query("UPDATE Utilisateur SET nom='"+nom+"',prenom='"+prenom+"',password='"+mdp+"'  WHERE id='"+id+"' " ,(err,result)=>{
+        if(err){
+            console.log(err);
+        }
+        else{
+            console.log("update done");
+        }
+    } )
+})
 
 app.post('/login' ,(req,res)=>{
 const username =req.body.username;
@@ -163,14 +257,14 @@ db.query("SELECT * FROM Utilisateur WHERE login =? AND password =?" ,[username, 
 
            setInterval(function(){
 
-        
+            
+
             db.query("SELECT count(*) as nbr,expe FROM Message where dest='"+result[0].id+"' AND lu = 0 AND groupe IS NULL GROUP BY expe ",dest,(err,result_msg)=>{
                 if (err)
                 {console.log(err)}
                 else {
     
                     envoyer(0,'notif',result_msg,result[0].id) ;
-
 
                 }
     
@@ -222,9 +316,25 @@ app.get('/message',(req,res)=>{
                 }   
             else{
                 if(result2.length>0){
-             var    msgg='succes';
+
+
+                        var    msgg='succes';
                         res.send({result,result2,msgg});
+
+
+                        db.query("UPDATE Message set lu = 1 where dest = "+expe+"  AND expe = "+dest+"  ",(err,result)=>{
+                            if (err)
+                            {console.log(err)}
+                            else {
+
+
+                            }
+
+                        });
+
                         //console.log({result,result2});
+
+
                         
                  }
                  else {
@@ -279,7 +389,7 @@ console.log("ajout terminé")
 })
 
 }),
-app.put('/delet',(req,res)=>{
+/*app.put('/delet',(req,res)=>{
     const prenom=req.body.prenom;
   
     
@@ -293,7 +403,7 @@ app.put('/delet',(req,res)=>{
     }
     })
     
-    }),
+    }),*/
 app.get ('/deconnexion',(req,res)=>{
     id=req.body.id;
     db.query("UPDATE Utilisateur SET etat=0 WHERE id=?",id,
@@ -315,12 +425,14 @@ io.sockets.emit('disconnected',{
 
 app.get('/afficher',(req,res)=>{
 const id=req.query.id;
-    db.query("SELECT nom,prenom,id,etat FROM Utilisateur WHERE id!=?",id,(err,result)=>{
+    db.query("SELECT nom,prenom,id,etat , (SELECT t2.message  FROM Message t2 WHERE ( t2.dest = '"+id+"' OR t2.expe = '"+id+"') AND t2.message IS NOT NULL AND t2.message != '' AND groupe IS NULL ORDER BY t2.id DESC LIMIT 1  ) as derniermsg ,  (SELECT t2.date  FROM Message t2 WHERE ( t2.dest = '"+id+"' OR t2.expe = '"+id+"'  ) AND t2.message IS NOT NULL AND t2.message != '' AND groupe IS NULL ORDER BY t2.id DESC LIMIT 1  ) as derniere_date FROM Utilisateur t1 WHERE id!=?",id,(err,result)=>{
     
 if(err){
     console.log(err);
 }else{
     res.send(result);
+
+    console.log(result);
    
 }
 
@@ -534,9 +646,12 @@ db.query("SELECT expe,dest,groupe FROM Message WHERE expe='"+id+"' OR dest='"+id
     }
 })
 })
+
+
 app.get('/message_groupe',(req,res)=>{
     const id_groupe =req.query.props;
     
+
 
 
         db.query("SELECT  concat('Groupe de discussion : ',nom_groupe) as destinataire,id FROM Groupe where id='"+id_groupe+"' ",id_groupe,(err,result)=>{
@@ -569,10 +684,8 @@ app.get('/message_groupe',(req,res)=>{
         }
 
     })
-
-
-    
     })
+ 
 
 app.post('/updategroupe',(req,res)=>{
 const id=req.body.id;
