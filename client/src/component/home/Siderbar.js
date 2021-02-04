@@ -17,6 +17,7 @@ const  socket= Socket(ENDPOINT);
 
 const Sidebar=()=> {
     const [user,setUser]=useState([]) ;
+  //  const [user2,setUser2]=useState([]) ;
     const [agent,setAgent]=useState([]);
     const [message, setMessage]=useState([]);
     const [msg,setMsg]=useState("");
@@ -26,6 +27,7 @@ const Sidebar=()=> {
     const [help, setHelp]=useState("");
     const [affect, setAffect]=useState([]);
     const [nomG,setNomG]=useState("");
+    
     
     const [show, setShow] = useState(false);
 
@@ -62,30 +64,30 @@ const Sidebar=()=> {
         setAffect( valeurs);
       }
     
-    useEffect(()=>{
-        Axios.get('http://192.168.4.102:4000/afficher',{
-            params:{
-                id:nom.id,
-            }
-
-        }).then ((response)=>{            
-            setUser(response.data) ;
-            
-        });
-        Axios.all([
-            Axios.get('http://192.168.4.102:4000/groupe',{params:{id:nom.id}}),
-            Axios.get('http://192.168.4.102:4000/afficher',{params:{id:nom.id}})]).then((response)=>{
-                
-            setUser(response[1].data);
-            
-            setGroupe(response[0].data);
-            })
+   
+    
   
+    useEffect(()=>{
+        
+             Axios.all([
+                 Axios.get('http://192.168.4.102:4000/groupe',{params:{id:nom.id}}),
+                 Axios.get('http://192.168.4.102:4000/afficher',{params:{id:nom.id}})]).then((response)=>{
+                    
+                  
+                 setUser(response[1].data);
+                 
+                 setGroupe(response[0].data);
+                 console.log(user);
+                 }
+                 )},[])
+
+
+  useEffect(()=>{
+ 
 
 socket.emit('user_connected', nom.id)
    
         socket.on('connected',function(data){
-          console.log(data.id+' '+data.etat);
             var iduser = data.id ;
 
             var etatuser = '';
@@ -110,39 +112,13 @@ socket.emit('user_connected', nom.id)
 
 
 
-    socket.on('notif',function(data){
-       
-        const arr_ids = [];
-        const arr_nbr = [];
-
-        for(var i=0 ; i<data.length ; i++){
-
-            arr_ids.push(data[i].expe) ;
-            arr_nbr.push(data[i].nbr) ;
-
-
-        }
-
-          document.querySelectorAll('.users').forEach(function(el) {
-
-              if( arr_ids.includes(parseInt(el.getAttribute("data-us")) ) ){
-
-                var idx = arr_ids.indexOf(parseInt(el.getAttribute("data-us"))) 
-
-                  document.querySelector('.nbr'+parseInt(el.getAttribute("data-us"))).innerHTML = arr_nbr[idx] ;
-
-
-              }
-          })
-  });
-  
+    
 
 
 
     
           
         socket.on('disconnected',function(data){
-          console.log(data.id+' '+data.etat);
             var iduser = data.id ;
 
             var etatuser = '';
@@ -175,25 +151,24 @@ socket.emit('user_connected', nom.id)
 Axios.get("http://192.168.4.102:4000/derniermessage",{
     params:{
         id:nom.id,
-    }}).then((response)=>{
+    }}).then((response)=>{  
 
         if(typeof(response.data.result3) !== 'undefined' ){
-            console.log(response.data.groupe);
+            
             if(response.data.groupe!=null ){
             contact_groupe(response.data.result3[0].id) ;
-                //console.log(response.data.result3[0].id);
+                
             }
             else{
             Contact(response.data.result3[0].id) ;
-            //console.log(response.data.result3[0].id);
+            
             }
 
 
         }
         else{
             
-            //console.log(response.data);
-           //  setMakrem(response.data);
+            
         }
         
 
@@ -227,7 +202,6 @@ id_connected:nom.id,
 
             if(typeof(response.data.result) !== 'undefined' ){
 
-                console.log(response.data);
              setAgent([response.data.result[0]]);
             const l=response.data.result[0].id;
             localStorage.setItem('desti',l);
@@ -246,7 +220,6 @@ id_connected:nom.id,
             }
         }
         else{
-            console.log(response.data.msgg);
             setMsgH(["aucunmsg"]);
         }
               
@@ -290,7 +263,6 @@ const contact_global =()=>{
          
     }).then((response)=>{
 
-        console.log(response);
         
         
         setAgent([response.data.result[0]]);
@@ -323,6 +295,7 @@ socket.emit('chat_global', {
     });
        
 const Envoyer =(e)=>{
+    
 if(document.querySelector('.envoyer').getAttribute('data-groupe') == 0){
     
     socket.emit('chat', {
@@ -362,7 +335,7 @@ Axios.get('http://192.168.4.102:4000/modifiergroupe',{
 
         users_groupe.push(response.data[i].utilisateur) ; 
 
-    //console.log();
+        
     }
 
 
@@ -390,7 +363,6 @@ Axios.get('http://192.168.4.102:4000/modifiergroupe',{
            }
                 
 
-            //console.log();
         
 
 
@@ -404,7 +376,7 @@ Axios.get('http://192.168.4.102:4000/modifiergroupe',{
     
 
 })}
-console.log(nomG);
+
 const update =()=>{
 Axios.post('http://192.168.4.102:4000/updategroupe',{
   nom:nomG,
@@ -412,7 +384,6 @@ Axios.post('http://192.168.4.102:4000/updategroupe',{
     affectation:affect,
     id_connected:nom.id,
 }).then((response)=>{
-    console.log(response.data);
     if(response.data=="groupe modifié"){
         alert('modification réussite');
         handleClose2 ();
@@ -438,19 +409,48 @@ Axios.post('http://192.168.4.102:4000/updategroupe',{
                   
                   
                   if (val.etat==1){
-              
-                 return (<li className='users' data-us={val.id} key={index} id={val.id} onClick={()=>Contact(val.id)}><a> <figure className="avatar avatar-state-success"><span className="avatar-title bg-secondary rounded-circle">{val.prenom.substring(0,1)}</span></figure>   <span className={'usr'+val.id} > <span className={'nbr'+val.id} >0</span></span> 
+                        if(val.derniere_date==null){
+                            return (<li className='users' data-us={val.id} key={index} id={val.id} onClick={()=>Contact(val.id)}><a> <figure className="avatar avatar-state-success"><span className="avatar-title bg-secondary rounded-circle">{val.prenom.substring(0,1)}</span></figure>   <span >{val.nbr}</span>
+                            <div className="users-list-body">
+                                <div><h5 className="">{val.prenom} {val.nom} </h5>
+                                
+                            <p>{val.derniermsg}</p>
+                            </div>
+                            <div className="users-list-action">
+                                <small className="text-muted"></small>
+                            </div>
+                            </div>
+                            </a></li> )
+
+
+
+                        }else{
+                 return (<li className='users' data-us={val.id} key={index} id={val.id} onClick={()=>Contact(val.id)}><a> <figure className="avatar avatar-state-success"><span className="avatar-title bg-secondary rounded-circle">{val.prenom.substring(0,1)}</span></figure>   <span >{val.nbr}</span> 
                                       <div className="users-list-body">
                                           <div><h5 className="">{val.prenom} {val.nom} </h5>
                                           
                                       <p>{val.derniermsg}</p>
                                       </div>
                                       <div className="users-list-action">
-                                          <small className="text-muted">{val.derniere_date}</small>
+                                          <small className="text-muted">{val.derniere_date.substring(11)}</small>
                                       </div>
                                       </div>
-                                      </a></li> );
+                                      </a></li> );}
               }else{
+                  if(val.derniere_date==null){
+                    return (<li className='users' data-us={val.id} key={index} id={val.id} onClick={()=>Contact(val.id)}><a> <figure className="avatar avatar-state-secondary"><span className="avatar-title bg-secondary rounded-circle">{val.prenom.substring(0,1)}</span></figure> <span className={'usr'+val.id}  > <span className={'nbr'+val.id} >0</span></span>  
+                    <div className="users-list-body">
+                        <div><h5 className="">{val.prenom} {val.nom} </h5>
+                    <p>{val.derniermsg}</p>
+                    </div>
+                    <div className="users-list-action">
+                        <small className="text-muted">
+                            </small>
+                    </div>
+                    </div>
+                    </a></li>);
+
+                  }else{
                 return (<li className='users' data-us={val.id} key={index} id={val.id} onClick={()=>Contact(val.id)}><a> <figure className="avatar avatar-state-secondary"><span className="avatar-title bg-secondary rounded-circle">{val.prenom.substring(0,1)}</span></figure> <span className={'usr'+val.id}  > <span className={'nbr'+val.id} >0</span></span>  
                                       <div className="users-list-body">
                                           <div><h5 className="">{val.prenom} {val.nom} </h5>
@@ -461,6 +461,7 @@ Axios.post('http://192.168.4.102:4000/updategroupe',{
                                       </div>
                                       </div>
                                       </a></li>);
+                                      }
               }
               })}
               {groupe.map((val,index)=>{
@@ -564,7 +565,7 @@ Axios.post('http://192.168.4.102:4000/updategroupe',{
 
                             if((desti==val.id_expe)||(desti==val.id_dest)){
 
-                                return(<div key={index} className="dest li_new">{val.message}  <br/>{val.date}</div>)
+                                return(<div key={index} className="exp li_new">{val.message}  <br/>{val.date}</div>)
                             
                             }
                             else if(gro == val.groupe ){

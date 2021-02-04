@@ -90,8 +90,8 @@ const Gerer = () => {
         Axios.put("http://192.168.4.102:4000/delet", {
          params:{ id: upd}
         }).then((response) => {
+            handleClose2();
             
-       
         });
      
     };
@@ -103,17 +103,23 @@ const Gerer = () => {
             prenom:prenom,
             mdp:mdp   
         }
-        }).then((response) => {});
+        }).then((response) => {
+                handleClose3();
+        });
       };
       const Ajout =()=>{
+      
         Axios.post('http://192.168.4.102:4000/create',{
     nom: nomm,
     prenom:prenom,
-    
+    login:login,
     mdp:mdp,
         }).then ((response)=>{
             console.log (response.message);
-        })};
+            
+      })
+        
+    };
     
       return (
     <div className="d-user">
@@ -134,14 +140,14 @@ const Gerer = () => {
         </Modal.Header>
         <Modal.Body>
           
-                      <Form.Group as={Col} md="9" >                            
+                      <Form.Group as={Col} md="9" id="create-form" >                            
                             <Form.Control as="textarea" placeholder="Nom " className="form-control"   onChange={(e)=>{setNomm(e.target.value)}} required rows={1} style={{width:"100%" }}/>
                         </Form.Group>
                         <Form.Group as={Col} md="9" >                            
                             <Form.Control as="textarea" placeholder="Prenom" className="form-control"    onChange={(e)=>{setPrenom(e.target.value)}} required rows={1} style={{width:"100%" }}/>
                         </Form.Group>
                         <Form.Group as={Col} md="9" >                            
-                            <Form.Control as="textarea" placeholder="Login" className="form-control"   onChange={(e)=>{setLogin(e.target.value)}}  required rows={1} style={{width:"100%" }}/>
+                            <Form.Control as="textarea" placeholder="Login" className="form-control"  onChange={(e)=>{setLogin(e.target.value)}}  required rows={1} style={{width:"100%" }}/>
                         </Form.Group>
                         <Form.Group as={Col} md="9" >                            
                             <Form.Control as="textarea" placeholder="Mot de passe" className="form-control"   onChange={(e)=>{setMdp(e.target.value)}}  required rows={1} style={{width:"100%" }}/>
@@ -168,7 +174,7 @@ const Gerer = () => {
         keyboard={false}
       >
         <Modal.Header closeButton>
-          <Modal.Title>Modfier Utilisateur  Utilisateur</Modal.Title>
+          <Modal.Title>Modifier Utilisateur  </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           

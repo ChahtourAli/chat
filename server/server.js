@@ -389,21 +389,7 @@ console.log("ajout terminé")
 })
 
 }),
-/*app.put('/delet',(req,res)=>{
-    const prenom=req.body.prenom;
-  
-    
-    db.query("DELETE FROM Utilisateur WHERE prenom=?",prenom,
-    (err,result)=>{
-    if(err){
-        console.log (err)
-    }
-    else{
-    console.log("suppression effectuer")
-    }
-    })
-    
-    }),*/
+
 app.get ('/deconnexion',(req,res)=>{
     id=req.body.id;
     db.query("UPDATE Utilisateur SET etat=0 WHERE id=?",id,
@@ -425,19 +411,24 @@ io.sockets.emit('disconnected',{
 
 app.get('/afficher',(req,res)=>{
 const id=req.query.id;
-    db.query("SELECT nom,prenom,id,etat , (SELECT t2.message  FROM Message t2 WHERE ( t2.dest = '"+id+"' OR t2.expe = '"+id+"') AND t2.message IS NOT NULL AND t2.message != '' AND groupe IS NULL ORDER BY t2.id DESC LIMIT 1  ) as derniermsg ,  (SELECT t2.date  FROM Message t2 WHERE ( t2.dest = '"+id+"' OR t2.expe = '"+id+"'  ) AND t2.message IS NOT NULL AND t2.message != '' AND groupe IS NULL ORDER BY t2.id DESC LIMIT 1  ) as derniere_date FROM Utilisateur t1 WHERE id!=?",id,(err,result)=>{
+    db.query("SELECT nom,prenom,id,etat,(SELECT count(*)  FROM Message where dest='"+id+"' AND expe = t1.id AND lu = 0 AND groupe IS NULL ) as nbr , (SELECT t2.message  FROM Message t2 WHERE ( t2.dest = '"+id+"' OR t2.expe = '"+id+"') AND  ( t2.dest = t1.id OR t2.expe = t1.id)  AND t2.message IS NOT NULL AND t2.message != '' AND groupe IS NULL ORDER BY t2.id DESC LIMIT 1  ) as derniermsg ,  (SELECT t2.date  FROM Message t2 WHERE ( t2.dest = '"+id+"' OR t2.expe = '"+id+"'  ) AND  ( t2.dest = t1.id OR t2.expe = t1.id)  AND t2.message IS NOT NULL AND t2.message != '' AND groupe IS NULL ORDER BY t2.id DESC LIMIT 1  ) as derniere_date FROM Utilisateur t1 WHERE id!=?",id,(err,result)=>{
     
 if(err){
     console.log(err);
 }else{
+
     res.send(result);
 
-    console.log(result);
-   
-}
+    }
 
-    })
+    
+
+ })
+
+
 })
+
+
 app.get('/home',(req,res)=>{
     
    id=req.query.props;
@@ -468,13 +459,13 @@ if(err)
 }
 else{
 
-    //console.log(result);
+  
 
     res.send(result1);
 
 }
 
-//res.send({table});
+
 
 
     })
@@ -510,7 +501,7 @@ app.post('/new_groupe',(req,res)=>{
                             db.query("INSERT INTO affectation_groupe (groupe,utilisateur) VALUES (?,?) ",[result1.insertId , usr],(err,result1)=>{
                                 if(err)
                                 {
-                                    console.log(err);
+                                   
                                 }
                                 else{
 
@@ -543,6 +534,9 @@ app.post('/new_groupe',(req,res)=>{
         }
             })
                                     })
+
+
+
 
 app.get('/derniermessage',(req,res)=>{
 
