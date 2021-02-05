@@ -10,13 +10,13 @@ import  {Router } from 'react-router-dom';
 
 
 ReactDOM.render(
-  <React.StrictMode>
+  <div>
     
     <Router history={History}>
     <App />
     </Router>
     
-  </React.StrictMode>,
+  </div>,
   document.getElementById('root')
 );
 

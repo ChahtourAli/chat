@@ -1,8 +1,5 @@
 import Signin from './component/auth/Signin.js'
-import Signup from './component/auth/Signup.js'
-import DeleteUser from './component/cruduser/deleteuser'
 import Gerer from './component/cruduser/gerer'
-import UpdateUser from './component/cruduser/updateuser'
 import Historique from './component/hisotrique';
 import Historique2 from './component/hisotrique2';
 import Home from './component/home/Home'
@@ -10,6 +7,7 @@ import React from 'react';
 import {Switch,Route} from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import PrivateRoute from "./component/privateRoute";
+
 
 
 
@@ -26,6 +24,7 @@ function App() {
        <PrivateRoute path="/home" component={Home} />  
          <Route exact path="/"  component={Signin} />
         <PrivateRoute path="/gerer" component={Gerer} />
+        
         
     </Switch>
     </div>

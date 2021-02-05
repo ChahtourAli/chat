@@ -1,4 +1,4 @@
-import React, { useEffect, useState,Fragment  } from "react";
+import React, { useEffect, useState,  } from "react";
 import Axios from "axios";
 import Nav from '../home/Navbar';
 import { Form,Button,Alert,Container,Row,Col,Card,Modal } from 'react-bootstrap';
@@ -31,11 +31,11 @@ const Gerer = () => {
           cell: record => { 
              
             return (
-                <Fragment>
+                <div>
                     <button className="btn btn-primary btn-sm" onClick={()=>handleShow3(record.id)}><i className="fa fa-edit">Modifier</i></button>
                     <button 
                         className="btn btn-danger btn-sm" onClick={()=>handleShow2(record.id)}><i className="fa fa-trash">Supprimer</i></button>
-                </Fragment>
+                </div>
             );
         }
         },

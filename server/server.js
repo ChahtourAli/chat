@@ -40,6 +40,7 @@ socket.on('user_connected',function (data){
 
 })
 socket.on('chat_groupe',function (data){
+    console.log(data);
 const expe=data.id_expe;
 const groupe=data.groupe;
 const message=data.message;
@@ -158,7 +159,7 @@ app.put("/delet",(req,res)=>{
 
 const id=req.body.params.id;
 
-db.query("DELETE FROM Utilisateur where id='"+id+"'",(err,result)=>{
+db.query("DELETE FROM Utilisateur where id=?",id,(err,result)=>{
 if(err)
 {
     console.log(err);
@@ -259,7 +260,7 @@ db.query("SELECT * FROM Utilisateur WHERE login =? AND password =?" ,[username, 
 
             
 
-            db.query("SELECT count(*) as nbr,expe FROM Message where dest='"+result[0].id+"' AND lu = 0 AND groupe IS NULL GROUP BY expe ",dest,(err,result_msg)=>{
+            db.query("SELECT count(*) as nbr,expe FROM Message where dest='"+result[0].id+"' AND lu = 0 AND groupe IS NULL GROUP BY expe ",(err,result_msg)=>{
                 if (err)
                 {console.log(err)}
                 else {
@@ -332,7 +333,7 @@ app.get('/message',(req,res)=>{
 
                         });
 
-                        //console.log({result,result2});
+                   
 
 
                         
@@ -340,7 +341,7 @@ app.get('/message',(req,res)=>{
                  else {
                      var msgg='echec';
                      res.send({result,result2,msgg});
-                        //console.log({result,result2});
+                  
                  }
              
          }})
@@ -384,28 +385,51 @@ if(err){
     console.log (err)
 }
 else{
-console.log("ajout terminé")
+    
+console.log("ajout terminé");
+db.query("SELECT id FROM Utilisateur where login='"+login+"' ", (err,result1)=>{
+    if(err)
+    {
+        console.log(err)
+    }
+    else{
+        let id=result1;
+        
+        db.query("INSERT INTO affectation_groupe (utilisateur,groupe) VALUES (?,'131') ",id[0].id,(err,result2)=>{
+            if(err)
+            {console.log(err);}
+            else {
+                console.log(result2);
+            }
+        })
+    }
+})
 }
 })
 
 }),
 
 app.get ('/deconnexion',(req,res)=>{
-    id=req.body.id;
-    db.query("UPDATE Utilisateur SET etat=0 WHERE id=?",id,
+    console.log(req.query.id);
+    const  id=req.query.id;
+    
+    db.query("UPDATE Utilisateur SET etat=0 WHERE id='"+id+"'",
     (err,result)=>{
         if (err){
-            console.log ("utilisateur deja déco" );
+            console.log (err);
         }else{
 io.sockets.emit('disconnected',{
 
-    id:result[0].id,
+    id:id,
     etat:0
    }) 
         }
         }
     
 )})
+
+
+
 
 
 
@@ -451,16 +475,14 @@ app.get('/home',(req,res)=>{
 app.get ('/groupe',(req,res)=>{
 const id =req.query.id;
 
-    db.query("SELECT groupe , nom_groupe  FROM affectation_groupe INNER JOIN Groupe on (affectation_groupe.groupe = Groupe.id) WHERE utilisateur=? ",id,(err,result1)=>{
+    db.query("SELECT groupe , nom_groupe ,(SELECT count(*) FROM Message WHERE Message.groupe = t1.id AND Message.expe != '"+id+"' AND lu = 0 ) as nbr , (SELECT date FROM Message WHERE Message.groupe = t1.id AND Message.expe != '"+id+"' ORDER BY id DESC LIMIT 1 ) as derniere_date , (SELECT message FROM Message WHERE Message.groupe = t1.id AND Message.expe != '"+id+"' ORDER BY id DESC LIMIT 1 ) as derniermsg  FROM affectation_groupe INNER JOIN Groupe as t1 on (affectation_groupe.groupe = t1.id) WHERE utilisateur=? ",id,(err,result1)=>{
        
 if(err)
 {
     console.log(err);
 }
-else{
-
-  
-
+else
+{
     res.send(result1);
 
 }
@@ -574,6 +596,8 @@ db.query("SELECT expe,dest,groupe FROM Message WHERE expe='"+id+"' OR dest='"+id
                     console.log(err)
                 }
                 else {
+
+                    
                 
 
                 db.query("SELECT message,date,expe FROM Message INNER JOIN Groupe  ON ( Message.groupe = Groupe.id ) WHERE groupe='"+groupe+"' ",
@@ -581,6 +605,8 @@ db.query("SELECT expe,dest,groupe FROM Message WHERE expe='"+id+"' OR dest='"+id
                      if (err){
                          return(err);
                         }   else{
+
+                            
     
                                 res.send({result3,result2,groupe});
     
@@ -647,7 +673,6 @@ app.get('/message_groupe',(req,res)=>{
     
 
 
-
         db.query("SELECT  concat('Groupe de discussion : ',nom_groupe) as destinataire,id FROM Groupe where id='"+id_groupe+"' ",id_groupe,(err,result)=>{
         if (err)
         {console.log(err)}
@@ -660,9 +685,23 @@ app.get('/message_groupe',(req,res)=>{
                 }   
             else{
                 if(result2.length>0){
-             var    msgg='succes';
+                    var    msgg='succes';
                         res.send({result,result2,msgg});
                         console.log({result,result2});
+                    
+
+                        db.query("UPDATE Message set lu = 1 where groupe = '"+id_groupe+"'  ",(err,result)=>{
+                            if (err)
+                            {console.log(err)}
+                            else {
+
+
+                            }
+
+                        });
+
+
+
                         
                  }
                  else {
@@ -767,13 +806,13 @@ function envoyer(multiple,objet,data,to) {
     socketsclient.forEach(socket => {
       
         if(socket.usr == to){
-        console.log(socket.usr) ;
+    
         
       
         socket.emit(objet,data) ;
         
 
-        console.log('message envoyé')
+
 
         }
 

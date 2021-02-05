@@ -7,20 +7,24 @@ import { faHome,faUsers,faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
  const Navbarr =()=> {
+     const nom=JSON.parse(localStorage.getItem('user'));
+     
     const changeUrl =()=>{
         History.push("/home"); 
       
     }
+    
 const deconnexion =()=>{
-    Axios.get('http://192.168.4.102:4000/deconnexion',{
-       id:16,
-    }).then(()=>{
+    Axios.get("http://192.168.4.102:4000/deconnexion",{
+        
+        params:{
+            id:nom.id,
+        }}).then(()=>{
         changeUrl();
-        localStorage.removeItem("token");
+            
     })
 }
 
-const nom=JSON.parse(localStorage.getItem('user'));
 
     return (
         <Navbar collapseOnSelect expand="lg" >
