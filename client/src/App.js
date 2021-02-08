@@ -12,7 +12,6 @@ import PrivateRoute from "./component/privateRoute";
 
 
 
-
 function App() { 
 
 

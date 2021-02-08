@@ -89,7 +89,7 @@ import img1 from './3350441.jpg';
                     <Alert.Heading>{message}</Alert.Heading>
                 </Alert>
                 <Form.Group className="text-center">
-                <Button variant="primary" type="submit" onClick={Join} >
+                <Button variant="primary" type="submit" onClick={Join} className="btn-block" >
                     Se connecter
                 </Button>
                 </Form.Group>

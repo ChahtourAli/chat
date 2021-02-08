@@ -8,7 +8,9 @@ import Sidebar from './Siderbar';
 
 const Home =()=>{
     return(
+        
     <div>
+    <title>My Page Title</title>
      <Navbarr />     
      <Sidebar />
    </div>

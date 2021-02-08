@@ -3,7 +3,6 @@ import Axios from "axios";
 import DataTable from 'react-data-table-component';
 import Nav from './home/Navbar'
 
-
 const columns = [
   {
     name: 'Expéditeur',
@@ -14,19 +13,16 @@ const columns = [
     name: 'Destinataire',
     selector: 'destinataire',
     sortable: true,
-    right: true,
   },
   {
     name: 'Message',
     selector: 'message',
     sortable: true,
-    right: true,
   },
   {
     name: 'Date et heure',
     selector: 'date',
     sortable: true,
-    right: true,
   },
 ];
 
@@ -39,17 +35,17 @@ const Historique =()=> {
           
         });
       }, []);
-    return (<div>
+    return (
+    <div>
       <Nav/>
-      <DataTable
-        columns={columns}
-        data={mess}
-        pagination={true}
-      />
-      </div>
+    <div className="div_user">
+        <h4>Historique</h4>  
+    </div> 
+      <DataTable columns={columns} data={mess} pagination={true} />            
+    </div>
     )
-  
-};
+    
+    };
 
 
 

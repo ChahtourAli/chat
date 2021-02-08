@@ -1,5 +1,6 @@
 .App {
   text-align: center;
+    font-family: 'Inter', sans-serif !important;
 }
 
 .App-logo {
@@ -12,6 +13,9 @@
     animation: App-logo-spin infinite 20s linear;
   }
 }
+
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
 .App-header {
   background-color: #282c34;

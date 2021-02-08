@@ -29,7 +29,15 @@ var db = mysql.createConnection({
   idsocket=0 ;
   io.on('connection', function (socket){
 
+
     
+    socket.on('msg_lu',function (data){
+        destinataire=
+        
+        db.query("UPDATE")
+    
+    })
+
 
 socket.on('user_connected',function (data){
 
@@ -40,12 +48,12 @@ socket.on('user_connected',function (data){
 
 })
 socket.on('chat_groupe',function (data){
-    console.log(data);
+    //console.log(data);
 const expe=data.id_expe;
 const groupe=data.groupe;
 const message=data.message;
 const date=data.date;
-console.log (data);
+//console.log (data);
 
 
 db.query("INSERT INTO Message (expe,message,date,groupe) VALUES (?,?,?,?) ",[expe,message,date,groupe],(err,result)=>{
@@ -101,7 +109,7 @@ socket.on('chat_global',function(data){
  const message= data.message;
  const date= data.date;
 
-            console.log(date) ;
+            //console.log(date) ;
 
             db.query("INSERT INTO Message (expe,dest,message,date) VALUES (?,?,?,?) ",[expe,dest,message,date],(err,result)=>{
                 if (err){
@@ -244,9 +252,9 @@ db.query("SELECT * FROM Utilisateur WHERE login =? AND password =?" ,[username, 
         if(result.length>0){
            const token= createToken(result[0].id);
            res.cookie('jwt',token,{maxAge:maxAge * 1000}); 
-           console.log(token);
+           //console.log(token);
            res.send({result,token});
-           console.log(result);
+           //console.log(result);
            db.query ("UPDATE Utilisateur SET etat=1 WHERE login=?",username);
 
            io.sockets.emit('connected',{
@@ -284,7 +292,7 @@ db.query("SELECT * FROM Utilisateur WHERE login =? AND password =?" ,[username, 
            }
             else{
                 message ="Login ou mot de passe incorrecte .";
-                console.log(message);
+                //console.log(message);
                 res.send(message);
             }
          }
@@ -299,7 +307,28 @@ db.query("SELECT * FROM Utilisateur WHERE login =? AND password =?" ,[username, 
 
 
     
-   
+    app.get('/update_lu',(req,res)=>{
+
+    const exp_id =req.query.exp_id;
+    const dest_id =req.query.dest_id;
+
+            console.log(exp_id+' ------ '+dest_id);
+
+        db.query("UPDATE Message SET lu = 1 WHERE   expe ='"+exp_id+"'  AND dest ='"+dest_id+"'  ",(err,result1)=>{
+            if (err)
+            {console.log(err)}
+            else {
+
+
+            }
+
+        });
+
+
+
+    });
+
+
 app.get('/message',(req,res)=>{
     const expe =req.query.id;
     const dest =req.query.props;
@@ -319,19 +348,19 @@ app.get('/message',(req,res)=>{
                 if(result2.length>0){
 
 
+                    db.query("UPDATE Message SET lu = 1 WHERE dest ='"+expe+"'  AND expe ='"+dest+"'  ",(err,result1)=>{
+                        if (err)
+                        {console.log(err)}
+                        else {
+
+
+                        }
+
+                    });
                         var    msgg='succes';
                         res.send({result,result2,msgg});
 
 
-                        db.query("UPDATE Message set lu = 1 where dest = "+expe+"  AND expe = "+dest+"  ",(err,result)=>{
-                            if (err)
-                            {console.log(err)}
-                            else {
-
-
-                            }
-
-                        });
 
                    
 
@@ -399,7 +428,7 @@ db.query("SELECT id FROM Utilisateur where login='"+login+"' ", (err,result1)=>{
             if(err)
             {console.log(err);}
             else {
-                console.log(result2);
+                //console.log(result2);
             }
         })
     }
@@ -410,7 +439,7 @@ db.query("SELECT id FROM Utilisateur where login='"+login+"' ", (err,result1)=>{
 }),
 
 app.get ('/deconnexion',(req,res)=>{
-    console.log(req.query.id);
+    //console.log(req.query.id);
     const  id=req.query.id;
     
     db.query("UPDATE Utilisateur SET etat=0 WHERE id='"+id+"'",
@@ -463,7 +492,7 @@ app.get('/home',(req,res)=>{
            }
            else{
               res.send(result);
-             console.log(result);
+             //console.log(result);
             
            }
 })
@@ -510,7 +539,7 @@ app.post('/new_groupe',(req,res)=>{
 
                     affectation.push(id_connected);
 
-                    console.log(affectation);
+                    //console.log(affectation);
                     
 
                     affectation.forEach(function(usr){
@@ -687,7 +716,7 @@ app.get('/message_groupe',(req,res)=>{
                 if(result2.length>0){
                     var    msgg='succes';
                         res.send({result,result2,msgg});
-                        console.log({result,result2});
+                        //console.log({result,result2});
                     
 
                         db.query("UPDATE Message set lu = 1 where groupe = '"+id_groupe+"'  ",(err,result)=>{
@@ -707,7 +736,7 @@ app.get('/message_groupe',(req,res)=>{
                  else {
                      var msgg='echec';
                      res.send({result,result2,msgg});
-                        console.log({result,result2});
+                        //console.log({result,result2});
                  }
              
          }})
@@ -726,7 +755,7 @@ const nom=req.body.nom;
 const affectation =req.body.affectation;
 const id_connected = req.body.id_connected;
 
-console.log(id);
+//console.log(id);
 db.query("UPDATE  Groupe SET nom_groupe=? where id=?",[nom,id],(err,result)=>{
         if (err)
         {
@@ -742,7 +771,7 @@ db.query("UPDATE  Groupe SET nom_groupe=? where id=?",[nom,id],(err,result)=>{
 
                     affectation.push(id_connected);
 
-                    console.log(affectation);
+                    //console.log(affectation);
                     
 
                     affectation.forEach(function(usr){

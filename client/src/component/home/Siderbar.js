@@ -26,6 +26,7 @@ const Sidebar=()=> {
     const [help, setHelp]=useState("");
     const [affect, setAffect]=useState([]);
     const [nomG,setNomG]=useState("");
+    const [currentUser,setCurrentUser]=useState("");
 
     
     const [show, setShow] = useState(false);
@@ -41,14 +42,6 @@ const Sidebar=()=> {
         setShow2(true);
     }
     
-
-   
-    
-
-        
-        
-        
-   
    
    const nom=JSON.parse(localStorage.getItem('user'));
     const desti=localStorage.getItem('desti');
@@ -74,10 +67,11 @@ const Sidebar=()=> {
     Axios.get('http://192.168.4.102:4000/groupe',{params:{id:nom.id}}),
     Axios.get('http://192.168.4.102:4000/afficher',{params:{id:nom.id}})]).then((response)=>{
        
-     
+
+    
     setUser(response[1].data);
     setGroupe(response[0].data);
-    console.log(user);
+    
     })}
     
     useEffect( ()=>{
@@ -93,12 +87,19 @@ const Sidebar=()=> {
  
 
 socket.emit('user_connected', nom.id)
-   
 
-    
         
 socket.on('message-send',function(data){
 
+
+    const destin_id = nom.id ;
+    const expe_id = localStorage.getItem('desti') ;
+    
+    if(data.id_dest == destin_id){
+    UpdateLu(destin_id , expe_id);
+    }
+
+    
      setMessage(prev=>[...prev,data]);
 
     
@@ -129,7 +130,7 @@ Axios.get("http://192.168.4.102:4000/derniermessage",{
         
 
     })
-  
+
     },[]);
         
 
@@ -158,19 +159,28 @@ id_connected:nom.id,
           Axios.get('http://192.168.4.102:4000/message',{ 
            params:{ props:props,id:nom.id,}}).then((response)=>{
 
+
+            setCurrentUser(response.data.result[0].id);
+
             
             document.querySelector('.envoyer').setAttribute('data-groupe','0') ;
+              //alert();
+              //document.querySelector('.users').addClass("aaaa");
 
             if(typeof(response.data.result) !== 'undefined' ){
                 setMsgH([]);
+                setMessage([]);
              setAgent([response.data.result[0]]);
             const l=response.data.result[0].id;
             localStorage.setItem('desti',l);
+
             
-                document.querySelectorAll('.li_new').forEach(function(ele) {                
-                    ele.remove();                    
-                });
-                
+
+
+            
+            
+
+               
             
              if(response.data.result2.length>0){
             
@@ -186,9 +196,23 @@ id_connected:nom.id,
               
             }    
         }
-        
+                                                   
+          
+            
         )}
 
+
+const UpdateLu = (destin , exped)=> {
+
+    Axios.get('http://192.168.4.102:4000/update_lu',{
+        params:{dest_id:destin , exp_id : exped}  
+    }).then((response)=>{
+
+
+    })
+
+
+}
 
 
 const contact_groupe =(props)=>{
@@ -213,45 +237,11 @@ else
 }
     })
 }
-const contact_global =()=>{
 
-    
-
-    Axios.get('http://192.168.4.102:4000/message_global',{
-         
-    }).then((response)=>{
-
-        
-        
-        setAgent([response.data.result[0]]);
-
-        setMsgH([]);
-        
-        if(response.data.result2.length>0){
-
-            for (var i=0;i<response.data.result2.length;i++){
-                
-                setMsgH(prev=>[...prev,response.data.result2[i]]);
-                
-            }
-            
-        }
-        else 
-        {
-            setMsgH(["aucune"]);
-        }
-        })
-}
 
 
       
-/*socket.emit('chat_global', {
-    message:msg,
-    groupe: gro ,
-    id_expe: nom.id,
-    date:Moment(new Date()).format( 'DD-MM-yyyy HH:mm')
-    });
-       */
+
 const Envoyer =(e)=>{
     
 if(document.querySelector('.envoyer').getAttribute('data-groupe') == 0){
@@ -272,6 +262,8 @@ if(document.querySelector('.envoyer').getAttribute('data-groupe') == 0){
             date:Moment(new Date()).format( 'DD-MM-yyyy HH:mm')
             });
     }
+    setMsg("");
+
        
 }
 
@@ -352,23 +344,31 @@ Axios.post('http://192.168.4.102:4000/updategroupe',{
 
 
     return (
-        <div className="wrapper">
+        <div className="wrapper"> 
             <nav id="sidebar">
 
             <div className="sidebar-header">
-                <h3 style={{marginBottom: 0,lineHeight: 2}}>{nom.prenom} {nom.nom}</h3>
-                <Button variant="light" style={{marginLeft:"10px"}} onClick={handleShow}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></Button>
+                <Button variant="light" style={{marginRight:"10px"}} onClick={handleShow}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" ><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></Button>
+                <h3 style={{marginBottom: 0,lineHeight: 2}}>{nom.prenom} {nom.nom}</h3>                
             </div>
 
             <ul className="list-unstyled components">
                 
-              {user.map((val,index)=>{
+              {user.map((val,index)=>{      
+                  
+
                   
                   
-                  
+
+
+
                   if (val.etat==1){
                         if(val.derniere_date==null){
-                            return (<li className='users' data-us={val.id} key={val.id} id={val.id} onClick={()=>Contact(val.id)}><a> <figure className="avatar avatar-state-success"><span className="avatar-title bg-secondary rounded-circle">{val.prenom.substring(0,1)}</span></figure>   {val.nbr == 0 ?  <span className="  0" >{val.nbr}</span> :   <span className="1">{val.nbr}</span> }
+                            
+                                
+                                  
+                            return (
+                            <li className='users' data-us={val.id} key={val.id} id={val.id} onClick={()=>Contact(val.id)}><a> <figure className="avatar avatar-state-success"><span className="avatar-title bg-secondary rounded-circle">{val.prenom.substring(0,1)}</span></figure>   
                             <div className="users-list-body">
                                 <div><h5 className="">{val.prenom} {val.nom} </h5>
                                 
@@ -376,6 +376,9 @@ Axios.post('http://192.168.4.102:4000/updategroupe',{
                             </div>
                             <div className="users-list-action">
                                 <small className="text-muted"></small>
+
+
+                                 { ( (val.nbr == 0)|| ( (val.nbr > 0) && (desti == val.id ) ) ) ?  <span className="notfication_msg_null" >{val.nbr}</span> :   <span className="notfication_msg" >{val.nbr}</span> }
                             </div>
                             </div>
                             </a></li> )
@@ -383,7 +386,8 @@ Axios.post('http://192.168.4.102:4000/updategroupe',{
 
 
                         }else{
-                 return (<li className='users' data-us={val.id} key={val.id} id={val.id} onClick={()=>Contact(val.id)}><a> <figure className="avatar avatar-state-success"><span className="avatar-title bg-secondary rounded-circle">{val.prenom.substring(0,1)}</span></figure>    {val.nbr == 0 ?  <span className="  0" >{val.nbr}</span> :   <span className="1">{val.nbr}</span> }
+                            
+                 return (<li className='users' data-us={val.id} key={val.id} id={val.id} onClick={()=>Contact(val.id)}><a> <figure className="avatar avatar-state-success"><span className="avatar-title bg-secondary rounded-circle">{val.prenom.substring(0,1)}</span></figure>    
                                       <div className="users-list-body">
                                           <div><h5 className="">{val.prenom} {val.nom} </h5>
                                           
@@ -391,48 +395,54 @@ Axios.post('http://192.168.4.102:4000/updategroupe',{
                                       </div>
                                       <div className="users-list-action">
                                           <small className="text-muted">{val.derniere_date.substring(11)}</small>
+                                            { ( (val.nbr == 0)|| ( (val.nbr > 0) && (desti == val.id ) ) ) ?  <span className="notfication_msg_null" >{val.nbr}</span> :   <span className="notfication_msg">{val.nbr}</span> }
                                       </div>
                                       </div>
                                       </a></li> );}
               }else{
                   if(val.derniere_date==null){
-                    return (<li className='users' data-us={val.id} key={val.id} id={val.id} onClick={()=>Contact(val.id)}><a> <figure className="avatar avatar-state-secondary"><span className="avatar-title bg-secondary rounded-circle">{val.prenom.substring(0,1)}</span></figure>  {val.nbr == 0 ?  <span className="  0" >{val.nbr}</span> :   <span className="1">{val.nbr}</span> }
+                   
+                    return (<li className='users' data-us={val.id} key={val.id} id={val.id} onClick={()=>Contact(val.id)}><a> <figure className="avatar avatar-state-secondary"><span className="avatar-title bg-secondary rounded-circle">{val.prenom.substring(0,1)}</span></figure>  
                     <div className="users-list-body">
                         <div><h5 className="">{val.prenom} {val.nom} </h5>
                     <p>{val.derniermsg}</p>
                     </div>
                     <div className="users-list-action">
-                        <small className="text-muted">
-                            </small>
+                        <small className="text-muted"></small>
+                         { ( (val.nbr == 0)|| ( (val.nbr > 0) && (desti == val.id ) ) ) ?  <span className="  notfication_msg_null" >{val.nbr}</span> :   <span className="notfication_msg">{val.nbr}</span> }
                     </div>
                     </div>
                     </a></li>);
 
                   }else{
-                return (<li className='users' data-us={val.id} key={val.id} id={val.id} onClick={()=>Contact(val.id)}><a> <figure className="avatar avatar-state-secondary"><span className="avatar-title bg-secondary rounded-circle">{val.prenom.substring(0,1)}</span></figure>  {val.nbr == 0 ?  <span className="  0" >{val.nbr}</span> :   <span className="1">{val.nbr}</span> }  
+                return (<li className='users' data-us={val.id} key={val.id} id={val.id} onClick={()=>Contact(val.id)}><a> <figure className="avatar avatar-state-secondary"><span className="avatar-title bg-secondary rounded-circle">{val.prenom.substring(0,1)}</span></figure>  
                                       <div className="users-list-body">
                                           <div><h5 className="">{val.prenom} {val.nom} </h5>
                                       <p>{val.derniermsg}</p>
                                       </div>
                                       <div className="users-list-action">
                                           <small className="text-muted">{val.derniere_date.substring(11)}</small>
+                                        { ( (val.nbr == 0)|| ( (val.nbr > 0) && (desti == val.id ) ) ) ?  <span className="notfication_msg_null" >{val.nbr}</span> :   <span className="notfication_msg">{val.nbr}</span> } 
                                       </div>
                                       </div>
                                       </a></li>);
                                       }
-              }
-              })}
+              
+                }
+                     }
+                )}
               {groupe.map((val)=>{
                  
                   return(
                          
-                         <li className='users' key={val.id} id= {val.id} onClick={()=>{contact_groupe(val.groupe)}}><a> <figure className="avatar avatar-state-secondary"><span className="avatar-title bg-secondary rounded-circle">{val.nom_groupe.substring(0,1)}</span></figure>  {val.nbr == 0 ?  <span className= " 0" >{val.nbr}</span> :   <span className="1">{val.nbr}</span> }  
+                         <li className='users' key={val.id} id= {val.id} onClick={()=>{contact_groupe(val.groupe)}}><a> <figure className="avatar avatar-state-secondary"><span className="avatar-title bg-secondary rounded-circle">{val.nom_groupe.substring(0,1)}</span></figure>   
                                       <div className="users-list-body">
                                           <div><h5 className="">{val.nom_groupe}</h5>
                                       <p>{val.derniermsg}</p>
                                       </div>
                                       <div className="users-list-action">
                                           <small className="text-muted">{ val.derniere_date!=null ? val.derniere_date.substring(11) : "" }</small>
+                                         {val.nbr == 0 ?  <span className= "notfication_msg_null" >{val.nbr}</span> :   <span className="notfication_msg">{val.nbr}</span> } 
                                       </div>
                                       </div>
                                       </a></li>
@@ -454,7 +464,7 @@ Axios.post('http://192.168.4.102:4000/updategroupe',{
                     if((valeur.destinataire).includes('Groupe de discussion :') == true){
                         return (
                             <div key={valeur.id} className="chat_header">
-                                <h3>{valeur.destinataire} <a href="#" onClick={handleShow2}>modifier</a></h3>
+                                <h5>{valeur.destinataire} <a href="#" onClick={handleShow2}>modifier</a></h5>
                          </div>
                         )
 
@@ -463,7 +473,7 @@ Axios.post('http://192.168.4.102:4000/updategroupe',{
 
                         return (
                             <div key={valeur.id} className="chat_header">
-                                <h3>{valeur.destinataire}</h3>
+                                <h5>{valeur.destinataire}</h5>
                         </div>
                         )
 
@@ -479,8 +489,8 @@ Axios.post('http://192.168.4.102:4000/updategroupe',{
                         <div  className="messages">
                         {msgH.map((val,index)=>{
                             if(msgH[0]=="aucunmsg"){
-                                return (<div key={index} style={{textAlign:"center"}}>
-                                        <img src={img1} width="50%"></img>                                        
+                                return (<div id="divempty" key={index} style={{textAlign:"center"}}>
+                                        <img src={img1} width="50%" className="image"></img>                                        
                                         <div style={{textAlign:"center",color:"#2d353e",fontSize:"14px"}}>Vous n'avez aucune discussion pour le moment.</div></div>)
                             }else{
                                     if (val.expe===nom.id){
@@ -516,25 +526,57 @@ Axios.post('http://192.168.4.102:4000/updategroupe',{
                       })}
                       {help}
                       
-                      
-                {message.map((val)=>{
-if(val.groupe==null){
-                    if(desti==val.id_expe){
+              {message.map((val)=>{
 
-                                return(<div key={val.id} className="exp li_new">{val.message}  <br/>{val.date}</div>)
-                            
-                            }else{
-                                if(desti==val.id_dest){
-                                    return(<div key={val.id} className="dest li_new">{val.message}  <br/>{val.date}</div>)
-                                }
-                            }}
-                            else if(gro == val.groupe ){
+
+             
+                
+
+                
+                if(val.groupe==null){
+                    if((desti == val.id_expe)&&(val.id_dest==nom.id)||((val.id_expe==nom.id)&&(desti == val.id_dest))){
+
+                    var classli = ((desti==val.id_expe)) ? "exp" : "dest";
+
+                    var classit = ((desti==val.id_expe)) ? "li_new message-item" : "li_new message-item2";
+
+
+                    var selection = document.querySelector('#divempty') !== null;
+
+                    if (selection) {
+                        document.querySelector('#divempty').remove();
+                    }
+                    
+
+                                return( <div key={val.id} className={classit}>                                                    
+                                <div  className={classli}>{val.message} </div>
+                                <div  className="message-avatar2">
+                                <div ><div  className="  time">{val.date}</div>
+                                </div>
+                                </div>
+                                </div> )
                                 
+                    }
+                            
+                            
+                            
+                }
+                else if(gro == val.groupe ){
+                 
+                    var selection = document.querySelector('#divempty') !== null;
+
+                    if (selection) {
+                        document.querySelector('#divempty').remove();
+                    }
+                    
                                 return(<div key={val.id} className="exp li_new">{val.message}  <br/>{val.date}</div>)
 
-                            }
+                }
+
+                
                             
                 })}
+
 
                     </div></div></div>)
                 })}
@@ -547,16 +589,16 @@ if(val.groupe==null){
                             
                         <Form.Group as={Col} md="1" style={{display:"none"}}>
                             <Button variant="light">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg></Button>    
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" ><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg></Button>    
                         </Form.Group>
                             
                         <Form.Group as={Col} md="10">                            
-                            <Form.Control as="textarea" placeholder="Tapez un message..." className="form-control"  onChange={(e)=>{setMsg(e.target.value)}}  required rows={1} style={{width:"100%" }} />
+                            <Form.Control as="textarea" placeholder="Tapez un message..." className="form-control" value={msg}  onChange={(e)=>{setMsg(e.target.value)}}  required rows={1} style={{width:"100%" }} />
                         </Form.Group>                       
                         
                         <Form.Group as={Col} md="2">
                         <Button variant="light" style={{display:"none"}} >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg></Button>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" ><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg></Button>
                         <Button variant="primary" type="button" className="envoyer" data-groupe="" onClick={Envoyer} style={{marginLeft:"10px"}} >
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                         </Button>
@@ -584,13 +626,13 @@ if(val.groupe==null){
         </Modal.Header>
         <Modal.Body>
           
-              <Form.Group as={Col} md="9" >                            
-                            <Form.Control as="textarea" placeholder="Nom de groupe" className="form-control"  onChange={(e)=>{setNewg(e.target.value)}}  required rows={1} style={{width:"100%" }}/>
+              <Form.Group as={Col} md="12" >                            
+                            <Form.Control as="input" placeholder="Nom de groupe" className="form-control"  onChange={(e)=>{setNewg(e.target.value)}}  required rows={1} style={{width:"100%" }}/>
                         </Form.Group>
                                       
               
         
-        <Form.Group >
+        <Form.Group as={Col} md="12"  >
             <Form.Label>Affecter les agents dans votre groupe</Form.Label>
             <Form.Control as="select" htmlSize={3} custom multiple onChange={handleChange} >
             {user.map((val)=>{
@@ -629,14 +671,14 @@ if(val.groupe==null){
           <Modal.Title>Modifier Groupe</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-        <Form.Group as={Col} md="9" >                            
-                            <Form.Control id="nom_groupe_edit" value={nomG} as="textarea" placeholder="Nom de groupe" className="form-control"  onChange={(e)=>{setNomG(e.target.value)}}  required rows={1} style={{width:"100%" }}/>
+        <Form.Group as={Col} md="12" >                            
+                            <Form.Control id="nom_groupe_edit" value={nomG} as="input" placeholder="Nom de groupe" className="form-control"  onChange={(e)=>{setNomG(e.target.value)}}  required rows={1} style={{width:"100%" }}/>
                         </Form.Group>
                                       
               
         
-        <Form.Group >
-            <Form.Label>Select with three visible options</Form.Label>
+        <Form.Group  as={Col} md="12" >
+            <Form.Label>Affecter les agents dans votre groupe</Form.Label>
             <Form.Control as="select" id="user_groupe_edit" htmlSize={3} custom multiple onChange={handleChange} >
             {user.map((val)=>{
                

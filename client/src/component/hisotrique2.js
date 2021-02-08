@@ -12,19 +12,16 @@ const columns = [
     name: 'Groupe',
     selector: 'destinataire',
     sortable: true,
-    right: true,
   },
   {
     name: 'Message',
     selector: 'message',
     sortable: true,
-    right: true,
   },
   {
     name: 'Date et heure',
     selector: 'date',
     sortable: true,
-    right: true,
   },
 ];
 
@@ -39,10 +36,14 @@ const Historique2 =()=> {
       }, []);
     return (<div>
       <Nav />
+    <div className="div_user">
+        <h4>Historique des groupes</h4>  
+    </div>
       <DataTable
         columns={columns}
         data={mess}
         pagination={true}
+            defaultSortField="title"
       />
       </div>
     )
