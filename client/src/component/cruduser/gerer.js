@@ -16,7 +16,6 @@ const Gerer = () => {
     
     const nom=JSON.parse(localStorage.getItem('user'));
     const [userr, setUserr] = useState([]);
-    
     const upd=localStorage.getItem('up');
     const [nomm,setNomm]= useState("");
     const [prenom,setPrenom]= useState("");
@@ -24,21 +23,25 @@ const Gerer = () => {
     const [mdp,setMdp]= useState("");
     const [show, setShow] = useState(false);
 
+  
+
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
     const [show2, setShow2] = useState(false);
 
     const handleClose2 = () => setShow2(false);
     const handleShow2 = (val) => {
-        localStorage.setItem('up',val);
+      supprimer(val);
+              
             setShow2(true)};
     
     const [show3, setShow3] = useState(false);
 
     const handleClose3 = () => setShow3(false);
     const handleShow3 = (val) => {
+              
         localStorage.setItem('up',val);
-            supprimer(val);
+        use(val);
             setShow3(true);
         
         };
@@ -74,11 +77,6 @@ const Gerer = () => {
           sortable: true,
         },
         {
-          name: 'Etat',
-          selector: 'etat',
-          sortable: true,
-        },
-        {
           name: 'Action',
           selector: 'nom',
           sortable: false,
@@ -88,19 +86,32 @@ const Gerer = () => {
             return (
                 <div>
                     <button className="btn btn-primary btn-sm" onClick={()=>handleShow3(record.id)} ><FontAwesomeIcon icon={faUserEdit} /></button>&nbsp;
-                    <button className="btn btn-danger btn-sm" onClick={()=>handleShow2(record.id)} ><FontAwesomeIcon icon={faUserTimes} /></button>
+                   <button className="btn btn-danger btn-sm d-none" onClick={()=>handleShow2(record.id)} ><FontAwesomeIcon icon={faUserTimes}  /></button>
                 </div>
             );
         }
         },
       ];
+      const use =(val)=>{
+   
+        Axios.get("http://192.168.4.102:4000/founduser",{
+         params:{ id:val,
+        }
+        }).then((response)=>{
+          setNomm(response.data[0].nom);
+          setPrenom(response.data[0].prenom);
+          setMdp(response.data[0].password);
+          
+        })
+      }
+
+        
     
     
-    const supprimer = () => {
     
-    
+    const supprimer = (val) => {
         Axios.put("http://192.168.4.102:4000/delet", {
-         params:{ id: upd}
+         params:{ id: val}
         }).then((response) => {
             handleClose2();
             
@@ -128,9 +139,13 @@ const Gerer = () => {
     mdp:mdp,
         }).then ((response)=>{
             console.log (response.message);
+           
             
       })
-        
+      setNomm("");
+      setPrenom("");
+      setLogin("");
+      setMdp("");
     };
     
       return (
@@ -151,17 +166,29 @@ const Gerer = () => {
           <Modal.Title>Nouveau Utilisateur</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+
+        <Form.Group>
+        <Form.Label>  Nom : </Form.Label></Form.Group>
             <Form.Group as={Col} md="12" id="create-form" >                            
-                <Form.Control as="textarea" placeholder="Nom " className="form-control"   onChange={(e)=>{setNomm(e.target.value)}} required rows={1} style={{width:"100%" }}/>
+                <Form.Control as="input" placeholder="Nom " className="form-control" value={nomm}  onChange={(e)=>{setNomm(e.target.value)}} required rows={1} style={{width:"100%" }}/>
+            </Form.Group>
+            <Form.Group>           
+               <Form.Label>  Prénom : </Form.Label>
+               </Form.Group>
+            <Form.Group as={Col} md="12" >                            
+                <Form.Control as="input" placeholder="Prenom" className="form-control"  value={prenom}   onChange={(e)=>{setPrenom(e.target.value)}} required rows={1} style={{width:"100%" }}/>
+            </Form.Group>
+            <Form.Group>
+            <Form.Label>  Login : </Form.Label>
             </Form.Group>
             <Form.Group as={Col} md="12" >                            
-                <Form.Control as="textarea" placeholder="Prenom" className="form-control"    onChange={(e)=>{setPrenom(e.target.value)}} required rows={1} style={{width:"100%" }}/>
+                <Form.Control as="input" placeholder="Login" className="form-control" value={login}  onChange={(e)=>{setLogin(e.target.value)}}  required rows={1} style={{width:"100%" }}/>
+            </Form.Group>
+            <Form.Group>
+            <Form.Label>  Mot de passe : </Form.Label>
             </Form.Group>
             <Form.Group as={Col} md="12" >                            
-                <Form.Control as="textarea" placeholder="Login" className="form-control"  onChange={(e)=>{setLogin(e.target.value)}}  required rows={1} style={{width:"100%" }}/>
-            </Form.Group>
-            <Form.Group as={Col} md="12" >                            
-                <Form.Control as="textarea" placeholder="Mot de passe" className="form-control"   onChange={(e)=>{setMdp(e.target.value)}}  required rows={1} style={{width:"100%" }}/>
+                <Form.Control as="input" placeholder="Mot de passe" className="form-control"  value={mdp}  onChange={(e)=>{setMdp(e.target.value)}}  required rows={1} style={{width:"100%" }}/>
             </Form.Group>                                      
         </Modal.Body>
         <Modal.Footer>
@@ -176,14 +203,23 @@ const Gerer = () => {
           <Modal.Title>Modifier Utilisateur</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+        <Form.Group>
+          <Form.Label>  Nom : </Form.Label>
+          </Form.Group>
             <Form.Group as={Col} md="12" >                            
-                <Form.Control as="textarea" placeholder="Nom " className="form-control"   onChange={(e)=>{setNomm(e.target.value)}} required rows={1} style={{width:"100%" }}/>
+                <Form.Control as="input" placeholder="Nom " className="form-control" value={nomm}  onChange={(e)=>{setNomm(e.target.value)}} required rows={1} style={{width:"100%" }}/>
+            </Form.Group>
+            <Form.Group>
+            <Form.Label>  Prénom : </Form.Label>
             </Form.Group>
             <Form.Group as={Col} md="12" >                            
-                <Form.Control as="textarea" placeholder="Prenom" className="form-control"    onChange={(e)=>{setPrenom(e.target.value)}} required rows={1} style={{width:"100%" }}/>
-            </Form.Group>                       
+                <Form.Control as="input" placeholder="Prenom" className="form-control"  value={prenom}  onChange={(e)=>{setPrenom(e.target.value)}} required rows={1} style={{width:"100%" }}/>
+            </Form.Group> 
+            <Form.Group>  
+            <Form.Label>  Mot de passe : </Form.Label>                    
+            </Form.Group>
             <Form.Group as={Col} md="12" >                            
-            <Form.Control as="textarea" placeholder="Mot de passe" className="form-control"   onChange={(e)=>{setMdp(e.target.value)}}  required rows={1} style={{width:"100%" }}/>
+            <Form.Control as="input" placeholder="Mot de passe" className="form-control"  value={mdp} onChange={(e)=>{setMdp(e.target.value)}}  required rows={1} style={{width:"100%" }}/>
             </Form.Group>                               
         </Modal.Body>
         <Modal.Footer>

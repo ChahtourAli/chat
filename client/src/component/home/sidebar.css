@@ -56,7 +56,7 @@
     width: 100%;
 }
 
-#sidebar ul.components {
+#sidebar ul.components {padding-top: 20px;
 }
 
 #sidebar ul.components p {
@@ -285,9 +285,38 @@ body{
 .nv_user{ float: right;}
 
 
+.bg-primary2 {
+    background-color: #407bff!important;
+}
+
 
 .navbar-brand svg {
 width: 30px !important;
     height: 30px !important;
     color: #8f9dae !important;
 }
+.letterA {background-color: #546E7A !important;}
+.letterB {background-color: #757575 !important;}
+.letterC {background-color: #6D4C41 !important;}
+.letterD {background-color: #BCAAA4 !important;}
+.letterE {background-color: #FF3D00 !important;}
+.letterF {background-color: #FF9100 !important;}
+.letterG {background-color: #FFD740 !important;}
+.letterH {background-color: #AEEA00 !important;}
+.letterI {background-color: #33691E !important;}
+.letterJ {background-color: #00C853 !important;}
+.letterK {background-color: #00BFA5 !important;}
+.letterL {background-color: #00796B !important;}
+.letterM {background-color: #00E5FF !important;}
+.letterN {background-color: #00ACC1 !important;}
+.letterO {background-color: #0091EA !important;}
+.letterP {background-color: #00B0FF !important;}
+.letterQ {background-color: #0D47A1 !important;}
+.letterR {background-color: #303F9F !important;}
+.letterS {background-color: #7E57C2 !important;}
+.letterT {background-color: #D500F9 !important;}
+.letterU {background-color: #9C27B0 !important;}
+.letterV {background-color: #FF4081 !important;}
+.letterW {background-color: #F50057 !important;}
+.letterX {background-color: #E53935 !important;}
+.letterZ {background-color: #FF1744 !important;}

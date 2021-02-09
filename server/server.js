@@ -163,7 +163,7 @@ app.get("/afficheruser",(req,res)=>{
        );}
 
  
-app.put("/delet",(req,res)=>{
+/*app.put("/delet",(req,res)=>{
 
 const id=req.body.params.id;
 
@@ -179,7 +179,7 @@ else{
 }
 
 })
-})
+})*/
 app.get("/getallmessage",(req,res)=>{
     db.query("SELECT t1.* , (SELECT concat(t2.nom,' ',t2.prenom) FROM Utilisateur as t2 where t1.expe = t2.id  ) as expediteur , (SELECT concat(t3.nom,' ',t3.prenom) FROM Utilisateur as t3 where t1.dest = t3.id  ) as destinataire  FROM Message as t1 WHERE t1.dest IS NOT NULL",(err,result)=>{
         if(err){
@@ -220,6 +220,19 @@ app.get("/getallmessagegroupe",(req,res)=>{
         }
     })
 })
+app.get("/founduser",(req,res)=>{
+    const id=req.query.id;
+    
+    db.query("SELECT nom,prenom,password FROM Utilisateur WHERE id='"+id+"' ",(err,result)=>{
+
+        if(err)
+        {console.log(err)}
+        else{
+            res.send(result);
+            console.log(result);    
+        }
+    })
+})
 
 app.post ("/updateUserr",(req,res)=>{
   
@@ -227,6 +240,7 @@ app.post ("/updateUserr",(req,res)=>{
     const nom=req.body.params.nom;
     const prenom=req.body.params.prenom;
     const mdp=req.body.params.mdp;
+
    
     db.query("UPDATE Utilisateur SET nom='"+nom+"',prenom='"+prenom+"',password='"+mdp+"'  WHERE id='"+id+"' " ,(err,result)=>{
         if(err){
@@ -236,6 +250,7 @@ app.post ("/updateUserr",(req,res)=>{
             console.log("update done");
         }
     } )
+
 })
 
 app.post('/login' ,(req,res)=>{

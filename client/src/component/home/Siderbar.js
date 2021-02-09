@@ -348,8 +348,8 @@ Axios.post('http://192.168.4.102:4000/updategroupe',{
             <nav id="sidebar">
 
             <div className="sidebar-header">
-                <Button variant="light" style={{marginRight:"10px"}} onClick={handleShow}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" ><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></Button>
-                <h3 style={{marginBottom: 0,lineHeight: 2}}>{nom.prenom} {nom.nom}</h3>                
+                <Button variant="light" style={{marginRight:"10px"}} onClick={handleShow}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" ><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg></Button>
+                <h3 style={{marginBottom: 0,lineHeight: 1.5}}><div style={{fontSize: 11}}>Bienvenu,</div><div style={{fontSize: 15}}>{nom.prenom} {nom.nom}</div></h3>                
             </div>
 
             <ul className="list-unstyled components">
@@ -368,16 +368,13 @@ Axios.post('http://192.168.4.102:4000/updategroupe',{
                                 
                                   
                             return (
-                            <li className='users' data-us={val.id} key={val.id} id={val.id} onClick={()=>Contact(val.id)}><a> <figure className="avatar avatar-state-success"><span className="avatar-title bg-secondary rounded-circle">{val.prenom.substring(0,1)}</span></figure>   
+                            <li className='users' data-us={val.id} key={val.id} id={val.id} onClick={()=>Contact(val.id)}><a> <figure className="avatar avatar-state-success"><span className={"avatar-title  rounded-circle letter"+ (val.prenom.substring(0,1)).toUpperCase()} >{val.prenom.substring(0,1)}</span></figure>   
                             <div className="users-list-body">
-                                <div><h5 className="">{val.prenom} {val.nom} </h5>
-                                
-                            <p>{val.derniermsg}</p>
+                                <div><h5 className="">{val.prenom} {val.nom} </h5>                                
+                                <p>{(val.derniermsg==null) ? "..." : val.derniermsg}</p>
                             </div>
                             <div className="users-list-action">
                                 <small className="text-muted"></small>
-
-
                                  { ( (val.nbr == 0)|| ( (val.nbr > 0) && (desti == val.id ) ) ) ?  <span className="notfication_msg_null" >{val.nbr}</span> :   <span className="notfication_msg" >{val.nbr}</span> }
                             </div>
                             </div>
@@ -387,11 +384,10 @@ Axios.post('http://192.168.4.102:4000/updategroupe',{
 
                         }else{
                             
-                 return (<li className='users' data-us={val.id} key={val.id} id={val.id} onClick={()=>Contact(val.id)}><a> <figure className="avatar avatar-state-success"><span className="avatar-title bg-secondary rounded-circle">{val.prenom.substring(0,1)}</span></figure>    
+                 return (<li className='users' data-us={val.id} key={val.id} id={val.id} onClick={()=>Contact(val.id)}><a> <figure className="avatar avatar-state-success"><span className={"avatar-title  rounded-circle letter"+ (val.prenom.substring(0,1)).toUpperCase()}>{val.prenom.substring(0,1)}</span></figure>    
                                       <div className="users-list-body">
                                           <div><h5 className="">{val.prenom} {val.nom} </h5>
-                                          
-                                      <p>{val.derniermsg}</p>
+                                          <p>{(val.derniermsg==null) ? "..." : val.derniermsg}</p>
                                       </div>
                                       <div className="users-list-action">
                                           <small className="text-muted">{val.derniere_date.substring(11)}</small>
@@ -402,10 +398,10 @@ Axios.post('http://192.168.4.102:4000/updategroupe',{
               }else{
                   if(val.derniere_date==null){
                    
-                    return (<li className='users' data-us={val.id} key={val.id} id={val.id} onClick={()=>Contact(val.id)}><a> <figure className="avatar avatar-state-secondary"><span className="avatar-title bg-secondary rounded-circle">{val.prenom.substring(0,1)}</span></figure>  
+                    return (<li className='users' data-us={val.id} key={val.id} id={val.id} onClick={()=>Contact(val.id)}><a> <figure className="avatar avatar-state-secondary"><span className={"avatar-title  rounded-circle letter"+ (val.prenom.substring(0,1)).toUpperCase()}>{val.prenom.substring(0,1)}</span></figure>  
                     <div className="users-list-body">
                         <div><h5 className="">{val.prenom} {val.nom} </h5>
-                    <p>{val.derniermsg}</p>
+                    <p>{(val.derniermsg==null) ? "..." : val.derniermsg}</p>
                     </div>
                     <div className="users-list-action">
                         <small className="text-muted"></small>
@@ -415,10 +411,10 @@ Axios.post('http://192.168.4.102:4000/updategroupe',{
                     </a></li>);
 
                   }else{
-                return (<li className='users' data-us={val.id} key={val.id} id={val.id} onClick={()=>Contact(val.id)}><a> <figure className="avatar avatar-state-secondary"><span className="avatar-title bg-secondary rounded-circle">{val.prenom.substring(0,1)}</span></figure>  
+                return (<li className='users' data-us={val.id} key={val.id} id={val.id} onClick={()=>Contact(val.id)}><a> <figure className="avatar avatar-state-secondary"><span className={"avatar-title  rounded-circle letter"+ (val.prenom.substring(0,1)).toUpperCase()}>{val.prenom.substring(0,1)}</span></figure>  
                                       <div className="users-list-body">
                                           <div><h5 className="">{val.prenom} {val.nom} </h5>
-                                      <p>{val.derniermsg}</p>
+                                      <p>{(val.derniermsg==null) ? "..." : val.derniermsg}</p>
                                       </div>
                                       <div className="users-list-action">
                                           <small className="text-muted">{val.derniere_date.substring(11)}</small>
@@ -431,14 +427,15 @@ Axios.post('http://192.168.4.102:4000/updategroupe',{
                 }
                      }
                 )}
+                                 <hr/>
               {groupe.map((val)=>{
                  
                   return(
                          
-                         <li className='users' key={val.id} id= {val.id} onClick={()=>{contact_groupe(val.groupe)}}><a> <figure className="avatar avatar-state-secondary"><span className="avatar-title bg-secondary rounded-circle">{val.nom_groupe.substring(0,1)}</span></figure>   
+                         <li className='users' key={val.id} id= {val.id} onClick={()=>{contact_groupe(val.groupe)}}><a> <figure className="avatar avatar-state-secondary"><span className={"avatar-title  rounded-circle letter"+ (val.nom_groupe.substring(0,1)).toUpperCase()}>{val.nom_groupe.substring(0,1)}</span></figure>   
                                       <div className="users-list-body">
                                           <div><h5 className="">{val.nom_groupe}</h5>
-                                      <p>{val.derniermsg}</p>
+                                      <p>{(val.derniermsg==null) ? "..." : val.derniermsg}</p>
                                       </div>
                                       <div className="users-list-action">
                                           <small className="text-muted">{ val.derniere_date!=null ? val.derniere_date.substring(11) : "" }</small>
@@ -569,10 +566,25 @@ Axios.post('http://192.168.4.102:4000/updategroupe',{
                         document.querySelector('#divempty').remove();
                     }
                     
-                                return(<div key={val.id} className="exp li_new">{val.message}  <br/>{val.date}</div>)
+                                        if(nom.id==val.id_expe){
+                                return(<div key={val.id} className="message-item2">                                                    
+                                <div  className="dest">{val.nom} {val.message} </div>
+                                <div  className="message-avatar2">
+                                <div ><div  className="time">{val.date}</div>
+                                </div>
+                                </div>
+                                </div>)}
+                                else{
+                                return(<div key={val.id} className="message-item">                                                    
+                                <div  className="exp">{val.message} </div>
+                                <div  className="message-avatar">
+                                <div ><div className="time">{val.date}</div>
+                                </div>
+                                </div>
+                                </div> )}
 
                 }
-
+                    
                 
                             
                 })}
@@ -621,7 +633,7 @@ Axios.post('http://192.168.4.102:4000/updategroupe',{
         backdrop="static"
         keyboard={false}
       >
-        <Modal.Header closeButton>
+        <Modal.Header closeButton className="bg-primary2 text-white">
           <Modal.Title>Nouveau Groupe</Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -667,11 +679,11 @@ Axios.post('http://192.168.4.102:4000/updategroupe',{
         backdrop="static"
         keyboard={false}
       >
-        <Modal.Header closeButton>
+        <Modal.Header closeButton className="bg-primary2 text-white">
           <Modal.Title>Modifier Groupe</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-        <Form.Group as={Col} md="12" >                            
+        <Form.Group as={Col} md="12">                            
                             <Form.Control id="nom_groupe_edit" value={nomG} as="input" placeholder="Nom de groupe" className="form-control"  onChange={(e)=>{setNomG(e.target.value)}}  required rows={1} style={{width:"100%" }}/>
                         </Form.Group>
                                       
